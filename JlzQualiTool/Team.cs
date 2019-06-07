@@ -7,10 +7,6 @@ namespace QualiTool
 
     public class Team : INotifyPropertyChanged
     {
-        //public static implicit operator string(Team t)
-        //{
-        //    return t.Name;
-        //}
         public static Team FromLine(string line)
         {
             var cells = line.Split(',');
