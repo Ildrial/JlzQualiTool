@@ -23,10 +23,11 @@ namespace QualiTool
         {
             return string.IsNullOrEmpty(number) ? 0 : int.Parse(number);
         }
+
         public Team()
         {
-
         }
+
         public int Id { get; set; }
         public string? Name { get; set; }
         public int PreSeasonPonits { get; set; }

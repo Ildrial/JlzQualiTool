@@ -8,15 +8,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="900" Width="1600">
     <Window.DataContext>
-        <local:ViewModel/>
+        <local:ViewModel />
     </Window.DataContext>
-    
+
     <Window.Resources>
         <DataTemplate x:Key="matchupTemplate" DataType="local:Matchup">
-            <uc:Matchup/>
+            <uc:Matchup />
         </DataTemplate>
     </Window.Resources>
-    
+
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -33,31 +33,29 @@
 
         <DataGrid HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Top" Width="Auto" SelectionMode="Single" SelectionUnit="Cell" ItemsSource="{Binding Teams, Mode=TwoWay }" CanUserAddRows="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <!--<DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True"/>-->
-                <DataGridTextColumn Header="Seed" Binding="{Binding Seed, StringFormat=0;;#}"/>
-                <DataGridTextColumn Header="TeamName" Binding="{Binding Name}"/>
-                <DataGridTextColumn Header="PreSeason" Binding="{Binding PreSeasonPonits}"/>
-                <DataGridTextColumn Header="SelfAssessment" Binding="{Binding SelfAssessmentPoints}"/>
-                <DataGridTextColumn Header="TotalPoints" Binding="{Binding TotalPoints}" IsReadOnly="True"/>
+                <!--<DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True" />-->
+                <DataGridTextColumn Header="Seed" Binding="{Binding Seed, StringFormat=0;;#}" />
+                <DataGridTextColumn Header="TeamName" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="PreSeason" Binding="{Binding PreSeasonPonits}" />
+                <DataGridTextColumn Header="SelfAssessment" Binding="{Binding SelfAssessmentPoints}" />
+                <DataGridTextColumn Header="TotalPoints" Binding="{Binding TotalPoints}" IsReadOnly="True" />
 
-                <DataGridTextColumn Header="Matches" Binding="{Binding Matches}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Points" Binding="{Binding Points}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="GoalsScored" Binding="{Binding GoalsScored}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="GoalsReceived" Binding="{Binding GoalsReceived}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Difference" Binding="{Binding Difference}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Matches" Binding="{Binding Matches}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Points" Binding="{Binding Points}" IsReadOnly="True" />
+                <DataGridTextColumn Header="GoalsScored" Binding="{Binding GoalsScored}" IsReadOnly="True" />
+                <DataGridTextColumn Header="GoalsReceived" Binding="{Binding GoalsReceived}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Difference" Binding="{Binding Difference}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
 
-        <Button x:Name="LoadData" Content="Load Data" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding LoadCommand, Mode=OneWay}"/>
-        <Button x:Name="CreateMatchups1" Content="CreateMatchups1" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding CreateMatchups1Command, Mode=OneWay}"/>
+        <Button x:Name="LoadData" Content="Load Data" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding LoadCommand, Mode=OneWay}" />
+        <Button x:Name="CreateMatchups1" Content="CreateMatchups1" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding CreateMatchups1Command, Mode=OneWay}" />
 
-        <ListBox ItemsSource="{Binding Path=Matchups[0]}" ItemTemplate="{StaticResource matchupTemplate}" Grid.Row="0" Grid.Column="1"/>
+        <ListBox ItemsSource="{Binding Path=Matchups[0]}" ItemTemplate="{StaticResource matchupTemplate}" Grid.Row="0" Grid.Column="1" />
 
-        <Button x:Name="UpdateScores" Content="Update Scores" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding UpdateScoresCommand, Mode=OneWay}"/>
-        <Button x:Name="CreateMatchups2" Content="CreateMatchups2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding CreateMatchups2Command, Mode=OneWay}"/>
+        <Button x:Name="UpdateScores" Content="Update Scores" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding UpdateScoresCommand, Mode=OneWay}" />
+        <Button x:Name="CreateMatchups2" Content="CreateMatchups2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding CreateMatchups2Command, Mode=OneWay}" />
 
-        <ListBox ItemsSource="{Binding Path=Matchups[1]}" ItemTemplate="{StaticResource matchupTemplate}" Grid.Row="0" Grid.Column="2"/>
-        
+        <ListBox ItemsSource="{Binding Path=Matchups[1]}" ItemTemplate="{StaticResource matchupTemplate}" Grid.Row="0" Grid.Column="2" />
     </Grid>
-
 </Window>

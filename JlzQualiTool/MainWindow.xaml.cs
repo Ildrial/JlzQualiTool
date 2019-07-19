@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Reflection;
+using System.Windows;
+using System.Xml;
 
 namespace QualiTool
 {
@@ -9,7 +12,19 @@ namespace QualiTool
     {
         public MainWindow()
         {
+            LoadLog4NetConfig();
+
             this.InitializeComponent();
+        }
+
+        private static void LoadLog4NetConfig()
+        {
+            XmlDocument log4netConfig = new XmlDocument();
+            log4netConfig.Load(File.OpenRead("log4net.config"));
+
+            var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
+
+            log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
         }
     }
 }

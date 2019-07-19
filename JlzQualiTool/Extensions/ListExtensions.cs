@@ -6,7 +6,6 @@ namespace QualiTool.Extensions
 
     public static class ListExtensions
     {
-
         public static ObservableCollection<T> Shuffle<T>(this ObservableCollection<T> list)
         {
             var rng = new Random();

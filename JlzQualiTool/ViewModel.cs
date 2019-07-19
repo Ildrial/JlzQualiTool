@@ -6,6 +6,7 @@ using System.Windows.Input;
 
 namespace QualiTool
 {
+    using log4net;
     using QualiTool.Extensions;
     using System.Linq;
 
@@ -14,7 +15,7 @@ namespace QualiTool
         private Team? myTeam;
         public ObservableCollection<Team> Teams { get; set; }
         public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
-
+        private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
 
         public Team? MyTeam
         {
@@ -28,6 +29,7 @@ namespace QualiTool
             // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
             this.Teams = new ObservableCollection<Team>();
             this.Matchups = new ObservableCollection<ObservableCollection<Matchup>>();
+            Log.Debug("ViewModel started.");
         }
 
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
@@ -117,12 +119,10 @@ namespace QualiTool
             {
                 // TODO
             }
-
-
         }
+
         public void CreateFirstRoundMatchups()
         {
-
             var shuffeledTeams = this.Teams.Shuffle();
             for (int i = 0; i < 4; i++)
             {
@@ -134,7 +134,6 @@ namespace QualiTool
                 var away2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
                 this.CreateAndAddMatchup(1, home2, away2);
             }
-
         }
 
         private void CreateAndAddMatchup(int round, Team? home, Team? away)
@@ -159,7 +158,6 @@ namespace QualiTool
             away?.Matchups.Add(matchup);
 
             firstRound.Add(matchup);
-
         }
 
         public class CommandHandler : ICommand
@@ -171,8 +169,8 @@ namespace QualiTool
             {
                 this.action = action;
                 this.canExecute = canExecute;
-
             }
+
             public bool CanExecute(object parameter)
             {
                 return this.canExecute;

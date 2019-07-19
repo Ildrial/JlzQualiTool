@@ -1,31 +1,31 @@
 ﻿<UserControl x:Class="QualiTool.UserControls.Matchup"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:QualiTool.UserControls"
              xmlns:qualiTool="clr-namespace:QualiTool"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="75" d:DesignWidth="250">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60"/>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="Time" Grid.Column="0"  Height="23"  Grid.Row="1" TextWrapping="Wrap" Text="{Binding Path=Time, StringFormat=hh:mm}"  Width="55" Margin="5 0 0 0 "/>
+        <TextBox x:Name="Time" Grid.Column="0"  Height="23"  Grid.Row="1" TextWrapping="Wrap" Text="{Binding Path=Time, StringFormat=hh:mm}"  Width="55" Margin="5 0 0 0 " />
         <Label Content="{Binding Path=Id}" Grid.Column="1"  Grid.Row="1" />
 
-        <TextBox x:Name="Home" Grid.Column="0"  Height="23"  Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="{Binding Path=Home.Name}"  />
+        <TextBox x:Name="Home" Grid.Column="0"  Height="23"  Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="{Binding Path=Home.Name}" />
         <TextBox x:Name="Away" Grid.Column="0"  Height="23" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="{Binding Away.Name}" />
 
         <!-- behavior for number only textbox: https://www.codeproject.com/Tips/1035207/Number-Only-Behavior-for-WPF-->
-        <TextBox x:Name="HomeGoals" Grid.Column="2"  Height="23"  Grid.Row="0" TextWrapping="Wrap" Text="{Binding Path=HomeGoal, StringFormat=0;;#}"  Width="30" Margin="5,0,0,0"/>
-        <TextBox x:Name="AwayGoals" Grid.Column="2"  Height="23"  Grid.Row="2" TextWrapping="Wrap" Text="{Binding Path=AwayGoal, StringFormat=0;;#}"  Width="30" Margin="5,0,0,0"/>
+        <TextBox x:Name="HomeGoals" Grid.Column="2"  Height="23"  Grid.Row="0" TextWrapping="Wrap" Text="{Binding Path=HomeGoal, StringFormat=0;;#}"  Width="30" Margin="5,0,0,0" />
+        <TextBox x:Name="AwayGoals" Grid.Column="2"  Height="23"  Grid.Row="2" TextWrapping="Wrap" Text="{Binding Path=AwayGoal, StringFormat=0;;#}"  Width="30" Margin="5,0,0,0" />
     </Grid>
 </UserControl>
