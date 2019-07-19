@@ -12,17 +12,8 @@ namespace QualiTool
 
     public class ViewModel //: INotifyPropertyChanged
     {
-        private Team? myTeam;
-        public ObservableCollection<Team> Teams { get; set; }
-        public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
-
-        public Team? MyTeam
-        {
-            get => this.myTeam;
-            set => this.myTeam = value;
-        }
-
+        private Team? myTeam;
         public ViewModel()
         {
             // TODO check about using CollectionViewSource instead for data grid binding
@@ -32,10 +23,71 @@ namespace QualiTool
             Log.Debug("ViewModel started.");
         }
 
-        public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
-        public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
         public ICommand CreateMatchups2Command => new CommandHandler(this.CreateSecondRoundMatchups, true);
+        public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
+        public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
+        public Team? MyTeam
+        {
+            get => this.myTeam;
+            set => this.myTeam = value;
+        }
+
+        public ObservableCollection<Team> Teams { get; set; }
+        public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
+        public void CreateFirstRoundMatchups()
+        {
+            var shuffeledTeams = this.Teams.Shuffle();
+            for (int i = 0; i < 4; i++)
+            {
+                var home = shuffeledTeams.First(t => t.Seed == i + 1);
+                var away = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home);
+                this.CreateAndAddMatchup(1, home, away);
+
+                var home2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0);
+                var away2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
+                this.CreateAndAddMatchup(1, home2, away2);
+            }
+        }
+
+        public void CreateSecondRoundMatchups()
+        {
+            var frm = this.Matchups[0].ToList().OrderBy(m => m.Id).ToList();
+
+            if (frm.Count() % 2 == 0)
+            {
+                for (int i = 0; i < frm.Count(); i = i + 2)
+                {
+                    this.CreateAndAddMatchup(2, frm[i].Winner, frm[i + 1].Winner);
+                    this.CreateAndAddMatchup(2, frm[i].Loser, frm[i + 1].Loser);
+                }
+            }
+            else
+            {
+                // TODO
+            }
+        }
+
+        public void LoadData()
+        {
+            this.Teams.Clear();
+
+            // TODO file selector instead
+            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
+            foreach (var line in lines)
+            {
+                this.Teams.Add(Team.FromLine(line));
+            }
+
+            var orderedTeams = this.Teams.OrderByDescending(t => t.PreSeasonPonits).ToList();
+
+            for (int i = 0; i < 4; i++)
+            {
+                orderedTeams[i].Seed = i + 1;
+            }
+
+            this.MyTeam = this.Teams.First();
+        }
 
         public void UpdateScores()
         {
@@ -81,61 +133,6 @@ namespace QualiTool
                 team.Publish();
             }
         }
-
-        public void LoadData()
-        {
-            this.Teams.Clear();
-
-            // TODO file selector instead
-            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
-            foreach (var line in lines)
-            {
-                this.Teams.Add(Team.FromLine(line));
-            }
-
-            var orderedTeams = this.Teams.OrderByDescending(t => t.PreSeasonPonits).ToList();
-
-            for (int i = 0; i < 4; i++)
-            {
-                orderedTeams[i].Seed = i + 1;
-            }
-
-            this.MyTeam = this.Teams.First();
-        }
-
-        public void CreateSecondRoundMatchups()
-        {
-            var frm = this.Matchups[0].ToList().OrderBy(m => m.Id).ToList();
-
-            if (frm.Count() % 2 == 0)
-            {
-                for (int i = 0; i < frm.Count(); i = i + 2)
-                {
-                    this.CreateAndAddMatchup(2, frm[i].Winner, frm[i + 1].Winner);
-                    this.CreateAndAddMatchup(2, frm[i].Loser, frm[i + 1].Loser);
-                }
-            }
-            else
-            {
-                // TODO
-            }
-        }
-
-        public void CreateFirstRoundMatchups()
-        {
-            var shuffeledTeams = this.Teams.Shuffle();
-            for (int i = 0; i < 4; i++)
-            {
-                var home = shuffeledTeams.First(t => t.Seed == i + 1);
-                var away = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home);
-                this.CreateAndAddMatchup(1, home, away);
-
-                var home2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0);
-                var away2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
-                this.CreateAndAddMatchup(1, home2, away2);
-            }
-        }
-
         private void CreateAndAddMatchup(int round, Team? home, Team? away)
         {
             if (round > this.Matchups.Count)
