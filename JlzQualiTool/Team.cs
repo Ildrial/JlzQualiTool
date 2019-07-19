@@ -66,6 +66,7 @@ namespace QualiTool
         {
             return string.IsNullOrEmpty(number) ? 0 : int.Parse(number);
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

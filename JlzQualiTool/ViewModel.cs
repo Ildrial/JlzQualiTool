@@ -14,6 +14,7 @@ namespace QualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
         private Team? myTeam;
+
         public ViewModel()
         {
             // TODO check about using CollectionViewSource instead for data grid binding
@@ -27,6 +28,7 @@ namespace QualiTool
         public ICommand CreateMatchups2Command => new CommandHandler(this.CreateSecondRoundMatchups, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
         public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
+
         public Team? MyTeam
         {
             get => this.myTeam;
@@ -35,6 +37,7 @@ namespace QualiTool
 
         public ObservableCollection<Team> Teams { get; set; }
         public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
+
         public void CreateFirstRoundMatchups()
         {
             var shuffeledTeams = this.Teams.Shuffle();
@@ -133,6 +136,7 @@ namespace QualiTool
                 team.Publish();
             }
         }
+
         private void CreateAndAddMatchup(int round, Team? home, Team? away)
         {
             if (round > this.Matchups.Count)
