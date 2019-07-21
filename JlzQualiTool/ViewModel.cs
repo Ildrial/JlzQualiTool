@@ -18,24 +18,6 @@ namespace QualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
 
-        public void SaveData()
-        {
-            var knownTypes = new Type[] { typeof(Team), typeof(Matchup) };
-
-            var ms = new MemoryStream();
-            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
-            ser.WriteObject(ms, this);
-            byte[] json = ms.ToArray();
-            ms.Close();
-
-            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
-            if (!Directory.Exists(Settings.SavePath))
-            {
-                Directory.CreateDirectory(Settings.SavePath);
-            }
-            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-hhmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
-        }
-
         public ViewModel()
         {
             // TODO check about using CollectionViewSource instead for data grid binding
@@ -46,13 +28,16 @@ namespace QualiTool
         }
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
+
         public ICommand CreateMatchups2Command => new CommandHandler(this.CreateSecondRoundMatchups, true);
+
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
-        public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
 
         // TODO introduce concept of rounds
         //[DataMember]
         public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
+
+        public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
 
         [DataMember]
         public ObservableCollection<Team> Teams { get; set; }
@@ -112,6 +97,24 @@ namespace QualiTool
             {
                 orderedTeams[i].Seed = i + 1;
             }
+        }
+
+        public void SaveData()
+        {
+            var knownTypes = new Type[] { typeof(Team), typeof(Matchup) };
+
+            var ms = new MemoryStream();
+            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
+            ser.WriteObject(ms, this);
+            byte[] json = ms.ToArray();
+            ms.Close();
+
+            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
+            if (!Directory.Exists(Settings.SavePath))
+            {
+                Directory.CreateDirectory(Settings.SavePath);
+            }
+            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
         public void UpdateScores()
