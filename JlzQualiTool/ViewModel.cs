@@ -6,14 +6,35 @@ using System.Windows.Input;
 
 namespace QualiTool
 {
+    using JlzQualiTool;
     using log4net;
     using QualiTool.Extensions;
     using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
 
+    [DataContract]
     public class ViewModel //: INotifyPropertyChanged
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
-        private Team? myTeam;
+
+        public void SaveData()
+        {
+            var knownTypes = new Type[] { typeof(Team), typeof(Matchup) };
+
+            var ms = new MemoryStream();
+            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
+            ser.WriteObject(ms, this);
+            byte[] json = ms.ToArray();
+            ms.Close();
+
+            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
+            if (!Directory.Exists(Settings.SavePath))
+            {
+                Directory.CreateDirectory(Settings.SavePath);
+            }
+            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-hhmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
+        }
 
         public ViewModel()
         {
@@ -27,15 +48,15 @@ namespace QualiTool
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
         public ICommand CreateMatchups2Command => new CommandHandler(this.CreateSecondRoundMatchups, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
+        public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
+
+        // TODO introduce concept of rounds
+        //[DataMember]
         public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
 
-        public Team? MyTeam
-        {
-            get => this.myTeam;
-            set => this.myTeam = value;
-        }
-
+        [DataMember]
         public ObservableCollection<Team> Teams { get; set; }
+
         public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
 
         public void CreateFirstRoundMatchups()
@@ -79,7 +100,10 @@ namespace QualiTool
             var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
             foreach (var line in lines)
             {
-                this.Teams.Add(Team.FromLine(line));
+                Team team = Team.FromLine(line);
+                this.Teams.Add(team);
+                // TODO improve ID behavior
+                team.Id = Teams.Count;
             }
 
             var orderedTeams = this.Teams.OrderByDescending(t => t.PreSeasonPonits).ToList();
@@ -88,8 +112,6 @@ namespace QualiTool
             {
                 orderedTeams[i].Seed = i + 1;
             }
-
-            this.MyTeam = this.Teams.First();
         }
 
         public void UpdateScores()

@@ -4,7 +4,9 @@ using System.Diagnostics.Contracts;
 namespace QualiTool
 {
     using System.ComponentModel;
+    using System.Runtime.Serialization;
 
+    [DataContract]
     public class Team : INotifyPropertyChanged
     {
         public Team()
@@ -17,14 +19,17 @@ namespace QualiTool
 
         public int GoalsScored { get; set; }
 
+        [DataMember]
         public int Id { get; set; }
 
         public int Matches { get; set; }
 
         public IList<Matchup> Matchups { get; } = new List<Matchup>(5);
 
+        [DataMember]
         public string? Name { get; set; }
 
+        [DataMember]
         public int Points { get; set; }
 
         public int PreSeasonPonits { get; set; }
