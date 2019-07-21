@@ -47,8 +47,14 @@
                 <DataGridTextColumn Header="Difference" Binding="{Binding Difference}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
-
-        <Button x:Name="LoadData" Content="Load Data" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding LoadCommand, Mode=OneWay}" />
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="LoadData" Content="Load Data" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding LoadCommand, Mode=OneWay}" />
+            <Button x:Name="Save" Content="Save" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding SaveCommand, Mode=OneWay}" />
+        </Grid>
         <Button x:Name="CreateMatchups1" Content="CreateMatchups1" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,0" Command="{Binding CreateMatchups1Command, Mode=OneWay}" />
 
         <ListBox ItemsSource="{Binding Path=Matchups[0]}" ItemTemplate="{StaticResource matchupTemplate}" Grid.Row="0" Grid.Column="1" />
