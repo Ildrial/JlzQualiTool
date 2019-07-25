@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 
 namespace QualiTool
+// TODO rename class
 {
     using System.ComponentModel;
     using System.Runtime.Serialization;

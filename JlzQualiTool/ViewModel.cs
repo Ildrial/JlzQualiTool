@@ -45,41 +45,16 @@ namespace QualiTool
 
         public void CreateFirstRoundMatchups()
         {
-            var firstRound = new Round();
+            var round = new Round(new SeededStrategy(Teams.ToList()), NoRules.Get, Round.Zero);
 
-            var shuffeledTeams = this.Teams.Shuffle();
-            for (int i = 0; i < 4; i++)
-            {
-                var home = shuffeledTeams.First(t => t.Seed == i + 1);
-                var away = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home);
-                firstRound.CreateAndAddMatchup(home, away);
-
-                var home2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0);
-                var away2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
-                firstRound.CreateAndAddMatchup(home2, away2);
-            }
-            this.Rounds.Add(firstRound);
+            Rounds.Add(round);
         }
 
         public void CreateSecondRoundMatchups()
         {
-            var secondRound = new Round();
-            this.Rounds.Add(secondRound);
+            var round = new Round(new KoStrategy(), NoRules.Get, Rounds.Last());
 
-            var frm = this.Rounds[0].Matchups.ToList().OrderBy(m => m.Id).ToList();
-
-            if (frm.Count() % 2 == 0)
-            {
-                for (int i = 0; i < frm.Count(); i = i + 2)
-                {
-                    secondRound.CreateAndAddMatchup(frm[i].Winner, frm[i + 1].Winner);
-                    secondRound.CreateAndAddMatchup(frm[i].Loser, frm[i + 1].Loser);
-                }
-            }
-            else
-            {
-                // TODO
-            }
+            Rounds.Add(round);
         }
 
         public void LoadData()
