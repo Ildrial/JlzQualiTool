@@ -12,6 +12,8 @@ namespace QualiTool
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
+    using System.Windows;
+    using System.Windows.Threading;
 
     [DataContract]
     public class ViewModel //: INotifyPropertyChanged
@@ -42,6 +44,13 @@ namespace QualiTool
         public ObservableCollection<Team> Teams { get; set; }
 
         public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
+
+        public static void GlobalExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs args)
+        {
+            Log.Fatal("Unexpected exception occured.", args.Exception);
+            MessageBox.Show(args.Exception.Message, Resources.UnexpectedException, MessageBoxButton.OK, MessageBoxImage.Error);
+            args.Handled = true;
+        }
 
         public void CreateFirstRoundMatchups()
         {
