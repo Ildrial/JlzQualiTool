@@ -23,7 +23,7 @@ namespace QualiTool
             // TODO check about using CollectionViewSource instead for data grid binding
             // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
             this.Teams = new ObservableCollection<Team>();
-            this.Matchups = new ObservableCollection<ObservableCollection<Matchup>>();
+            this.Rounds = new ObservableCollection<Round>();
             Log.Debug("ViewModel started.");
         }
 
@@ -33,9 +33,8 @@ namespace QualiTool
 
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
 
-        // TODO introduce concept of rounds
-        //[DataMember]
-        public ObservableCollection<ObservableCollection<Matchup>> Matchups { get; }
+        [DataMember]
+        public ObservableCollection<Round> Rounds { get; }
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
 
@@ -46,29 +45,35 @@ namespace QualiTool
 
         public void CreateFirstRoundMatchups()
         {
+            var firstRound = new Round();
+
             var shuffeledTeams = this.Teams.Shuffle();
             for (int i = 0; i < 4; i++)
             {
                 var home = shuffeledTeams.First(t => t.Seed == i + 1);
                 var away = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home);
-                this.CreateAndAddMatchup(1, home, away);
+                firstRound.CreateAndAddMatchup(home, away);
 
                 var home2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0);
                 var away2 = shuffeledTeams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
-                this.CreateAndAddMatchup(1, home2, away2);
+                firstRound.CreateAndAddMatchup(home2, away2);
             }
+            this.Rounds.Add(firstRound);
         }
 
         public void CreateSecondRoundMatchups()
         {
-            var frm = this.Matchups[0].ToList().OrderBy(m => m.Id).ToList();
+            var secondRound = new Round();
+            this.Rounds.Add(secondRound);
+
+            var frm = this.Rounds[0].Matchups.ToList().OrderBy(m => m.Id).ToList();
 
             if (frm.Count() % 2 == 0)
             {
                 for (int i = 0; i < frm.Count(); i = i + 2)
                 {
-                    this.CreateAndAddMatchup(2, frm[i].Winner, frm[i + 1].Winner);
-                    this.CreateAndAddMatchup(2, frm[i].Loser, frm[i + 1].Loser);
+                    secondRound.CreateAndAddMatchup(frm[i].Winner, frm[i + 1].Winner);
+                    secondRound.CreateAndAddMatchup(frm[i].Loser, frm[i + 1].Loser);
                 }
             }
             else
@@ -101,7 +106,7 @@ namespace QualiTool
 
         public void SaveData()
         {
-            var knownTypes = new Type[] { typeof(Team), typeof(Matchup) };
+            var knownTypes = new Type[] { typeof(Team), typeof(Round) };
 
             var ms = new MemoryStream();
             var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
@@ -122,9 +127,9 @@ namespace QualiTool
             for (int t = 0; t < this.Teams.Count; t++)
             {
                 var team = this.Teams[t];
-                for (int i = 0; i < this.Matchups.Count; i++)
+                for (int i = 0; i < this.Rounds.Count; i++)
                 {
-                    var matchup = this.Matchups[i].Single(m => m.Home == team || m.Away == team);
+                    var matchup = this.Rounds[i].Matchups.Single(m => m.Home == team || m.Away == team);
 
                     team.Matches++;
 
@@ -160,30 +165,6 @@ namespace QualiTool
 
                 team.Publish();
             }
-        }
-
-        private void CreateAndAddMatchup(int round, Team? home, Team? away)
-        {
-            if (round > this.Matchups.Count)
-            {
-                this.Matchups.Add(new ObservableCollection<Matchup>());
-            }
-            var firstRound = this.Matchups[round - 1];
-
-            var @base = round * 100;
-            var gameNo = firstRound.Count(m => m.Id > @base) + @base + 1;
-
-            var matchup = new Matchup()
-            {
-                Away = away,
-                Home = home,
-                Round = round,
-                Id = gameNo
-            };
-            home?.Matchups.Add(matchup);
-            away?.Matchups.Add(matchup);
-
-            firstRound.Add(matchup);
         }
 
         public class CommandHandler : ICommand

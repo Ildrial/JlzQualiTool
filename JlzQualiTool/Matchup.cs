@@ -5,29 +5,60 @@ namespace QualiTool
 {
     public class Matchup
     {
-        [DataMember]
-        public Team? Away { get; set; }
+        private Team? away;
+        private Team? home;
 
-        [DataMember]
+        // FIXME why are Ids not serialized?
+        [IgnoreDataMember]
+        public Team? Away
+        {
+            get
+            {
+                return this.away;
+            }
+            set
+            {
+                AwayId = value == null ? -1 : value.Id;
+                this.away = value;
+            }
+        }
+
+        [DataMember(Order = 4)]
         public int AwayGoal { get; set; }
 
-        [DataMember]
-        public Team? Home { get; set; }
+        [IgnoreDataMember]
+        public Team? Home
+        {
+            get
+            {
+                return this.home;
+            }
+            set
+            {
+                HomeId = value == null ? -1 : value.Id;
+                this.home = value;
+            }
+        }
 
-        [DataMember]
+        [DataMember(Order = 2)]
         public int HomeGoal { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 0)]
         public int Id { get; set; }
 
+        [IgnoreDataMember]
         public Team? Loser => this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         [DataMember]
-        public int Round { get; set; }
-
-        //[DataMember]
         public DateTime Time { get; set; }
 
+        [IgnoreDataMember]
         public Team? Winner => this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+
+        [DataMember(Order = 3)]
+        public int AwayId { get; set; }
+
+        [DataMember(Order = 1)]
+        public int HomeId { get; set; }
     }
 }
