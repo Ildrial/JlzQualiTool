@@ -1,6 +1,6 @@
-﻿using QualiTool;
+﻿using log4net;
+using QualiTool;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace JlzQualiTool
@@ -10,9 +10,9 @@ namespace JlzQualiTool
         void CreateMatchups(Round round);
     }
 
-    public class KoStrategy : IMatchupStrategy
+    public class KoStrategy : MatchupStrategyBase
     {
-        public void CreateMatchups(Round round)
+        protected override void CreateMatchupsInternal(Round round)
         {
             var frm = round.PreviousRound.Matchups.ToList().OrderBy(m => m.Id).ToList();
 
@@ -26,22 +26,35 @@ namespace JlzQualiTool
             }
             else
             {
-                // TODO
+                // TODO for 14 teams, respectively any number of even teams not dividable by 4
             }
         }
     }
 
-    public class NoStrategy : IMatchupStrategy
+    public abstract class MatchupStrategyBase : IMatchupStrategy
+    {
+        protected static ILog Log = log4net.LogManager.GetLogger(typeof(MatchupStrategyBase));
+
+        public void CreateMatchups(Round round)
+        {
+            Log.Info($"Creating matchups for round '{round.Number}':");
+            CreateMatchupsInternal(round);
+        }
+
+        protected abstract void CreateMatchupsInternal(Round round);
+    }
+
+    public class NoStrategy : MatchupStrategyBase
     {
         public static IMatchupStrategy Get = new NoStrategy();
 
-        public void CreateMatchups(Round round)
+        protected override void CreateMatchupsInternal(Round round)
         {
             throw new System.NotImplementedException();
         }
     }
 
-    public class SeededStrategy : IMatchupStrategy
+    public class SeededStrategy : MatchupStrategyBase
     {
         public SeededStrategy(List<Team> teams)
         {
@@ -50,7 +63,7 @@ namespace JlzQualiTool
 
         private List<Team> Teams { get; }
 
-        public void CreateMatchups(Round round)
+        protected override void CreateMatchupsInternal(Round round)
         {
             for (int i = 0; i < 4; i++)
             {

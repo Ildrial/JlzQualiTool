@@ -1,4 +1,5 @@
-﻿using QualiTool;
+﻿using log4net;
+using QualiTool;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,9 +12,12 @@ namespace JlzQualiTool
     {
         public static Round Zero = new Round();
 
+        private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
+
         // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
-        public Round(IMatchupStrategy strategy, Round previousRound)
+        public Round(int number, IMatchupStrategy strategy, Round previousRound)
         {
+            this.Number = number;
             this.Strategy = strategy;
             this.PreviousRound = previousRound;
 
@@ -24,9 +28,7 @@ namespace JlzQualiTool
             }
         }
 
-        public List<Team> Ranking { get; private set; }
-
-        public Round() : this(NoStrategy.Get, Zero)
+        private Round() : this(0, NoStrategy.Get, Zero)
         {
             // TODO make private
         }
@@ -35,8 +37,9 @@ namespace JlzQualiTool
         public ObservableCollection<Matchup> Matchups { get; } = new ObservableCollection<Matchup>();
 
         [DataMember(Order = 0)]
-        public int Number { get; set; }
+        public int Number { get; private set; }
 
+        public List<Team> Ranking { get; private set; }
         internal Round PreviousRound { get; }
         private IMatchupStrategy Strategy { get; }
 
@@ -46,12 +49,15 @@ namespace JlzQualiTool
 
             var @base = Number * 100;
             var gameNo = @base + numberOfMatches + 1;
+            var time = DateTime.Now;
+
+            Log.Info($" > {gameNo} @ {time.ToString("HH:mm")}: {home?.Name} - {away?.Name}");
 
             var matchup = new Matchup()
             {
                 Away = away,
                 Home = home,
-                Time = DateTime.Now,
+                Time = time,
                 Id = gameNo
             };
             home?.Matchups.Add(matchup);

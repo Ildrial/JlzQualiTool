@@ -8,7 +8,6 @@ namespace QualiTool
 {
     using JlzQualiTool;
     using log4net;
-    using QualiTool.Extensions;
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
@@ -26,7 +25,6 @@ namespace QualiTool
             // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
-            Log.Debug("ViewModel started.");
         }
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
@@ -54,14 +52,14 @@ namespace QualiTool
 
         public void CreateFirstRoundMatchups()
         {
-            var round = new Round(new SeededStrategy(Teams.ToList()), Round.Zero);
+            var round = new Round(1, new SeededStrategy(Teams.ToList()), Round.Zero);
 
             Rounds.Add(round);
         }
 
         public void CreateSecondRoundMatchups()
         {
-            var round = new Round(new KoStrategy(), Rounds.Last());
+            var round = new Round(2, new KoStrategy(), Rounds.Last());
 
             Rounds.Add(round);
         }

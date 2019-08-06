@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Threading;
 using System.Xml;
 
 namespace QualiTool
