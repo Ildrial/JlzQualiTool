@@ -1,5 +1,6 @@
 ﻿using QualiTool;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 
@@ -11,10 +12,9 @@ namespace JlzQualiTool
         public static Round Zero = new Round();
 
         // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
-        public Round(IMatchupStrategy strategy, IRankingRules rules, Round previousRound)
+        public Round(IMatchupStrategy strategy, Round previousRound)
         {
             this.Strategy = strategy;
-            this.Rules = rules;
             this.PreviousRound = previousRound;
 
             // TODO correct place to do that?
@@ -24,7 +24,9 @@ namespace JlzQualiTool
             }
         }
 
-        public Round() : this(NoStrategy.Get, NoRules.Get, Zero)
+        public List<Team> Ranking { get; private set; }
+
+        public Round() : this(NoStrategy.Get, Zero)
         {
             // TODO make private
         }
@@ -36,7 +38,6 @@ namespace JlzQualiTool
         public int Number { get; set; }
 
         internal Round PreviousRound { get; }
-        private IRankingRules Rules { get; }
         private IMatchupStrategy Strategy { get; }
 
         public void CreateAndAddMatchup(Team? home, Team? away)

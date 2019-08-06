@@ -54,14 +54,14 @@ namespace QualiTool
 
         public void CreateFirstRoundMatchups()
         {
-            var round = new Round(new SeededStrategy(Teams.ToList()), NoRules.Get, Round.Zero);
+            var round = new Round(new SeededStrategy(Teams.ToList()), Round.Zero);
 
             Rounds.Add(round);
         }
 
         public void CreateSecondRoundMatchups()
         {
-            var round = new Round(new KoStrategy(), NoRules.Get, Rounds.Last());
+            var round = new Round(new KoStrategy(), Rounds.Last());
 
             Rounds.Add(round);
         }
