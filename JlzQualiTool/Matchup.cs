@@ -70,6 +70,8 @@ namespace QualiTool
         public void SaveScore()
         {
             Log.Debug($"Updating score: {Home?.Name} - {Away?.Name} {HomeGoal} : {AwayGoal}");
+
+            // TODO i do need some logic, dude...
         }
     }
 }
