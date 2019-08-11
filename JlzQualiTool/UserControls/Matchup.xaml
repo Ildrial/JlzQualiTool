@@ -6,6 +6,9 @@
              xmlns:local="clr-namespace:JlzQualiTool.ValueConverters"
              mc:Ignorable="d"
              d:DesignHeight="75" d:DesignWidth="250">
+    <UserControl.Resources>
+        <local:DefaultButtonConverter x:Key="DefaultButtonConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -26,9 +29,6 @@
         <!-- behavior for number only textbox: https://www.codeproject.com/Tips/1035207/Number-Only-Behavior-for-WPF-->
         <TextBox x:Name="HomeGoals" Grid.Column="2"  Height="23"  Grid.Row="0" TextWrapping="Wrap" Text="{Binding Path=HomeGoal, StringFormat=0;;#}"  Width="30" Margin="5,0,0,0" />
         <Button x:Name="OkButton" Content="OK" Grid.Column="2" Grid.Row="1" Command="{Binding SaveScoreCommand, Mode=OneWay}"  Width="30" Margin="5,0,0,0">
-            <Button.Resources>
-                <local:DefaultButtonConverter x:Key="DefaultButtonConverter" />
-            </Button.Resources>
             <Button.IsDefault>
                 <MultiBinding Converter="{StaticResource DefaultButtonConverter}">
                     <Binding ElementName="HomeGoals" Path="IsFocused" />
