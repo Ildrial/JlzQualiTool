@@ -79,6 +79,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button x:Name="LoadData"
                     Content="Load Data"
@@ -98,6 +99,15 @@
                     Width="75"
                     Margin="10,10,10,0"
                     Command="{Binding SaveCommand, Mode=OneWay}" />
+            <Button x:Name="GenerateResults"
+                    Content="Generate Results"
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Width="75"
+                    Margin="10,10,10,0"
+                    Command="{Binding GenerateResultsCommand, Mode=OneWay}" />
         </Grid>
         <Button x:Name="CreateMatchups1"
                 Content="CreateMatchups1"

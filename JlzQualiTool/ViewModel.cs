@@ -34,13 +34,13 @@ namespace JlzQualiTool
 
         public ICommand FinishFirstRoundCommand => new CommandHandler(this.FinishFirstRound, true);
 
+        public ICommand GenerateResultsCommand => new CommandHandler(this.GenerateRandomResults, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
 
         [DataMember]
         public ObservableCollection<Round> Rounds { get; }
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
-
         public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
 
         [DataMember]
@@ -67,6 +67,24 @@ namespace JlzQualiTool
             var round = new Round(2, new KoStrategy(), Rounds.Last());
 
             Rounds.Add(round);
+        }
+
+        public void GenerateRandomResults()
+        {
+            var random = new Random(10);
+
+            for (int i = 0; i < this.Rounds.Count; i++)
+            {
+                foreach (var matchup in this.Rounds[i].Matchups.Where(m => !m.IsPlayed))
+                {
+                    matchup.HomeGoal = random.Next(0, 10);
+                    matchup.AwayGoal = random.Next(0, 10);
+
+                    matchup.Publish();
+                }
+            }
+
+            this.UpdateScores();
         }
 
         public void LoadData()

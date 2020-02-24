@@ -1,11 +1,11 @@
 ﻿using log4net;
 using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Windows.Input;
 
 namespace JlzQualiTool
 {
-    public class Matchup
+    public class Matchup : INotifyPropertyChanged
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
         private Team? away;
@@ -25,8 +25,6 @@ namespace JlzQualiTool
                 this.away = value;
             }
         }
-
-        public bool IsPlayed { get; set; }
 
         [DataMember(Order = 4)]
         public int AwayGoal { get; set; }
@@ -57,6 +55,8 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Id { get; set; }
 
+        public bool IsPlayed { get; set; }
+
         [IgnoreDataMember]
         public Team? Loser => this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
@@ -65,5 +65,18 @@ namespace JlzQualiTool
 
         [IgnoreDataMember]
         public Team? Winner => this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+
+        public void Publish()
+        {
+            this.OnPropertyChanged("HomeGoal");
+            this.OnPropertyChanged("AwayGoal");
+        }
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
