@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace QualiTool
+namespace JlzQualiTool
 // TODO rename class
 {
     using System.ComponentModel;
@@ -60,6 +60,14 @@ namespace QualiTool
             this.OnPropertyChanged("GoalsScored");
             this.OnPropertyChanged("GoalsReceived");
             this.OnPropertyChanged("Difference");
+        }
+
+        internal void ClearRankingInfo()
+        {
+            Matches = 0;
+            Points = 0;
+            GoalsScored = 0;
+            GoalsReceived = 0;
         }
 
         // Create the OnPropertyChanged method to raise the event

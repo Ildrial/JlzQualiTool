@@ -4,9 +4,8 @@ using System.IO;
 using System.Text;
 using System.Windows.Input;
 
-namespace QualiTool
+namespace JlzQualiTool
 {
-    using JlzQualiTool;
     using log4net;
     using System.Linq;
     using System.Runtime.Serialization;
@@ -29,7 +28,7 @@ namespace QualiTool
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
 
-        public ICommand CreateMatchups2Command => new CommandHandler(this.CreateSecondRoundMatchups, true);
+        public ICommand FinishFirstRoundCommand => new CommandHandler(this.FinishFirstRound, true);
 
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
 
@@ -37,6 +36,8 @@ namespace QualiTool
         public ObservableCollection<Round> Rounds { get; }
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
+
+        public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
 
         [DataMember]
         public ObservableCollection<Team> Teams { get; set; }
@@ -57,7 +58,7 @@ namespace QualiTool
             Rounds.Add(round);
         }
 
-        public void CreateSecondRoundMatchups()
+        public void FinishFirstRound()
         {
             var round = new Round(2, new KoStrategy(), Rounds.Last());
 
@@ -104,8 +105,21 @@ namespace QualiTool
             File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
+        public void SaveScore(Matchup machtup)
+        {
+            Log.Debug($"Updating score: {machtup.Home?.Name} - {machtup.Away?.Name} {machtup.HomeGoal} : {machtup.AwayGoal}");
+
+            // TODO instead derive from home and away goal? (which need be nullable then)
+            machtup.IsPlayed = true;
+
+            // TODO replace update scores method... should only count once
+            UpdateScores();
+        }
+
         public void UpdateScores()
         {
+            ClearScore();
+            // FIXME check for IsPlayed, recalculate whole table every time!
             for (int t = 0; t < this.Teams.Count; t++)
             {
                 var team = this.Teams[t];
@@ -149,6 +163,11 @@ namespace QualiTool
             }
         }
 
+        private void ClearScore()
+        {
+            Teams.ToList().ForEach(t => t.ClearRankingInfo());
+        }
+
         public class CommandHandler : ICommand
         {
             private readonly Action action;
@@ -168,6 +187,30 @@ namespace QualiTool
             public void Execute(object parameter)
             {
                 this.action();
+            }
+
+            public event EventHandler CanExecuteChanged;
+        }
+
+        public class ParameterCommandHandler : ICommand
+        {
+            private readonly Action<Matchup> action;
+            private readonly bool canExecute;
+
+            public ParameterCommandHandler(Action<Matchup> action, bool canExecute)
+            {
+                this.action = action;
+                this.canExecute = canExecute;
+            }
+
+            public bool CanExecute(object parameter)
+            {
+                return this.canExecute;
+            }
+
+            public void Execute(object parameter)
+            {
+                this.action((Matchup)parameter);
             }
 
             public event EventHandler CanExecuteChanged;

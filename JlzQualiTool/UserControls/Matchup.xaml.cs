@@ -1,6 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Text.RegularExpressions;
+using System.Windows.Controls;
 
-namespace QualiTool.UserControls
+namespace JlzQualiTool.UserControls
 {
     /// <summary>
     /// Interaction logic for Matchup.xaml
@@ -10,6 +11,11 @@ namespace QualiTool.UserControls
         public Matchup()
         {
             this.InitializeComponent();
+        }
+
+        private void NumbersOnlyTextBox(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = new Regex("\\D").IsMatch(e.Text);
         }
     }
 }

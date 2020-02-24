@@ -1,5 +1,5 @@
 ﻿using log4net;
-using QualiTool;
+using JlzQualiTool;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

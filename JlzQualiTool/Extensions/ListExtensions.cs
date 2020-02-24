@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QualiTool.Extensions
+namespace JlzQualiTool.Extensions
 {
     using System.Collections.ObjectModel;
 

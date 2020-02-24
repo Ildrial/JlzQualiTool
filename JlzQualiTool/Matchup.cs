@@ -2,9 +2,8 @@
 using System;
 using System.Runtime.Serialization;
 using System.Windows.Input;
-using static QualiTool.ViewModel;
 
-namespace QualiTool
+namespace JlzQualiTool
 {
     public class Matchup
     {
@@ -26,6 +25,8 @@ namespace QualiTool
                 this.away = value;
             }
         }
+
+        public bool IsPlayed { get; set; }
 
         [DataMember(Order = 4)]
         public int AwayGoal { get; set; }
@@ -59,19 +60,10 @@ namespace QualiTool
         [IgnoreDataMember]
         public Team? Loser => this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
-        public ICommand SaveScoreCommand => new CommandHandler(this.SaveScore, true);
-
         [DataMember]
         public DateTime Time { get; set; }
 
         [IgnoreDataMember]
         public Team? Winner => this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
-
-        public void SaveScore()
-        {
-            Log.Debug($"Updating score: {Home?.Name} - {Away?.Name} {HomeGoal} : {AwayGoal}");
-
-            // TODO i do need some logic, dude...
-        }
     }
 }
