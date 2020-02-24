@@ -59,7 +59,7 @@
                  Height="23"
                  Grid.Row="0"
                  TextWrapping="Wrap"
-                 Text="{Binding Path=HomeGoal, StringFormat=0;;#, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding Path=HomeGoal, UpdateSourceTrigger=PropertyChanged}"
                  PreviewTextInput="NumbersOnlyTextBox"
                  Width="30"
                  Margin="5,0,0,0" />
@@ -95,7 +95,7 @@
                  Height="23"
                  Grid.Row="2"
                  TextWrapping="Wrap"
-                 Text="{Binding Path=AwayGoal, StringFormat=0;;#, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding Path=AwayGoal, UpdateSourceTrigger=PropertyChanged}"
                  PreviewTextInput="NumbersOnlyTextBox"
                  Width="30"
                  Margin="5,0,0,0" />

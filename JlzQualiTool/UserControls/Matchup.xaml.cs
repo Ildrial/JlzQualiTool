@@ -15,7 +15,9 @@ namespace JlzQualiTool.UserControls
 
         private void NumbersOnlyTextBox(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            e.Handled = new Regex("\\D").IsMatch(e.Text);
+            // TODO find more elegant way to achieve that
+            string completeText = (sender as TextBox)?.Text + e.Text;
+            e.Handled = !(new Regex("[0-9]").IsMatch(e.Text) && completeText.Length <= 2);
         }
     }
 }

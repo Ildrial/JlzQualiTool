@@ -153,8 +153,8 @@ namespace JlzQualiTool
 
                     if (matchup.Home == team)
                     {
-                        team.GoalsScored += matchup.HomeGoal;
-                        team.GoalsReceived += matchup.AwayGoal;
+                        team.GoalsScored += matchup.HomeGoal ?? 0;
+                        team.GoalsReceived += matchup.AwayGoal ?? 0;
 
                         if (matchup.HomeGoal > matchup.AwayGoal)
                         {
@@ -167,8 +167,8 @@ namespace JlzQualiTool
                     }
                     else
                     {
-                        team.GoalsScored += matchup.AwayGoal;
-                        team.GoalsReceived += matchup.HomeGoal;
+                        team.GoalsScored += matchup.AwayGoal ?? 0;
+                        team.GoalsReceived += matchup.HomeGoal ?? 0;
 
                         if (matchup.HomeGoal < matchup.AwayGoal)
                         {

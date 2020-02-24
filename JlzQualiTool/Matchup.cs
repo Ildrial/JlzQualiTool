@@ -27,7 +27,7 @@ namespace JlzQualiTool
         }
 
         [DataMember(Order = 4)]
-        public int AwayGoal { get; set; }
+        public int? AwayGoal { get; set; }
 
         [DataMember(Order = 3)]
         public int AwayId { get; set; }
@@ -47,7 +47,7 @@ namespace JlzQualiTool
         }
 
         [DataMember(Order = 2)]
-        public int HomeGoal { get; set; }
+        public int? HomeGoal { get; set; }
 
         [DataMember(Order = 1)]
         public int HomeId { get; set; }
