@@ -24,6 +24,10 @@ namespace JlzQualiTool
             // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
+
+            // TODO remove eventually
+            LoadData();
+            CreateFirstRoundMatchups();
         }
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
@@ -97,11 +101,11 @@ namespace JlzQualiTool
             byte[] json = ms.ToArray();
             ms.Close();
 
-            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
             if (!Directory.Exists(Settings.SavePath))
             {
                 Directory.CreateDirectory(Settings.SavePath);
             }
+
             File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
@@ -112,13 +116,13 @@ namespace JlzQualiTool
             // TODO instead derive from home and away goal? (which need be nullable then)
             machtup.IsPlayed = true;
 
-            // TODO replace update scores method... should only count once
             UpdateScores();
         }
 
         public void UpdateScores()
         {
-            ClearScore();
+            ClearScores();
+
             // FIXME check for IsPlayed, recalculate whole table every time!
             for (int t = 0; t < this.Teams.Count; t++)
             {
@@ -163,7 +167,7 @@ namespace JlzQualiTool
             }
         }
 
-        private void ClearScore()
+        private void ClearScores()
         {
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
         }
