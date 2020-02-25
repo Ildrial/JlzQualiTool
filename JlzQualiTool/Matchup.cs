@@ -54,28 +54,45 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Id { get; set; }
 
+        // TODO derive from home/away goals
         [DataMember(Order = 5)]
         public bool IsPlayed { get; set; }
 
         [IgnoreDataMember]
-        public Team? Loser => !IsPlayed ? Team.Tbd : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
+        public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         [IgnoreDataMember]
         public DateTime Time { get; set; }
 
         [IgnoreDataMember]
-        public Team? Winner => !IsPlayed ? Team.Tbd : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+        public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public void Publish()
         {
+            // TODO distinguish between publishing teams and goals
+            this.OnPropertyChanged("Home");
+            this.OnPropertyChanged("Away");
             this.OnPropertyChanged("HomeGoal");
             this.OnPropertyChanged("AwayGoal");
+        }
+
+        public void RaiseOnMatchPlayedEvent()
+        {
+            OnMatchPlayedEvent?.Invoke(this, EventArgs.Empty);
         }
 
         protected void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        public event EventHandler OnMatchPlayedEvent = new EventHandler((o, e) =>
+        {
+            if (o != null)
+            {
+                ((Matchup)o).IsPlayed = true;
+            }
+        });
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

@@ -9,6 +9,24 @@ namespace JlzQualiTool
         void CreateMatchups(Round round);
     }
 
+    public class InitialOrderStrategy : MatchupStrategyBase
+    {
+        public InitialOrderStrategy(List<Team> teams)
+        {
+            Teams = teams;
+        }
+
+        private List<Team> Teams { get; }
+
+        protected override void CreateMatchupsInternal(Round round)
+        {
+            for (int i = 0; i < Teams.Count; i += 2)
+            {
+                _ = round.CreateAndAddMatchup(this.Teams[i], this.Teams[i + 1]);
+            }
+        }
+    }
+
     public class KoStrategy : MatchupStrategyBase
     {
         protected override void CreateMatchupsInternal(Round round)
@@ -19,8 +37,37 @@ namespace JlzQualiTool
             {
                 for (int i = 0; i < frm.Count(); i += 2)
                 {
-                    round.CreateAndAddMatchup(frm[i].Winner ?? Team.Tbd, frm[i + 1].Winner ?? Team.Tbd);
-                    round.CreateAndAddMatchup(frm[i].Loser ?? Team.Tbd, frm[i + 1].Loser ?? Team.Tbd);
+                    var frm1 = frm[i];
+                    var frm2 = frm[i + 1];
+
+                    var matchup1 = round.CreateAndAddMatchup(
+                        new Team(string.Format(Resources.Winner, frm1.Id)),
+                        new Team(string.Format(Resources.Winner, frm2.Id)));
+                    var matchup2 = round.CreateAndAddMatchup(
+                        new Team(string.Format(Resources.Loser, frm1.Id)),
+                        new Team(string.Format(Resources.Loser, frm2.Id)));
+
+                    // TODO put in methods and use sender and event args
+                    frm1.OnMatchPlayedEvent += (o, e) =>
+                    {
+                        matchup1.Home = frm1.Winner ?? matchup1.Home;
+                        matchup2.Home = frm1.Loser ?? matchup2.Home;
+
+                        Log.Debug($"Match {frm1.Id} played. Updating Home team for game {matchup1.Id} ({matchup1.Home.Name}) and {matchup2.Id} ({matchup2.Home.Name}).");
+
+                        matchup1.Publish();
+                        matchup2.Publish();
+                    };
+                    frm2.OnMatchPlayedEvent += (o, e) =>
+                    {
+                        matchup1.Away = frm2.Winner ?? matchup1.Away;
+                        matchup2.Away = frm2.Loser ?? matchup2.Away;
+
+                        Log.Debug($"Match {frm2.Id} played. Updating Away team for game {matchup1.Id} ({matchup1.Away.Name}) and {matchup2.Id} ({matchup2.Away.Name}).");
+
+                        matchup1.Publish();
+                        matchup2.Publish();
+                    };
                 }
             }
             else
@@ -50,31 +97,6 @@ namespace JlzQualiTool
         protected override void CreateMatchupsInternal(Round round)
         {
             throw new System.NotImplementedException();
-        }
-    }
-
-    public class SeededStrategy : MatchupStrategyBase
-    {
-        public SeededStrategy(List<Team> teams)
-        {
-            Teams = teams;
-        }
-
-        private List<Team> Teams { get; }
-
-        protected override void CreateMatchupsInternal(Round round)
-        {
-            // TODO implement behavior for teams not dividable by 4, e.g. 14, 18, ...
-            for (int i = 0; i < 4; i++)
-            {
-                var home = Teams.First(t => t.Seed == i + 1);
-                var away = Teams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home);
-                round.CreateAndAddMatchup(home, away);
-
-                var home2 = Teams.First(t => t.Seed == 0 && t.Matchups.Count == 0);
-                var away2 = Teams.First(t => t.Seed == 0 && t.Matchups.Count == 0 && t != home2);
-                round.CreateAndAddMatchup(home2, away2);
-            }
         }
     }
 }

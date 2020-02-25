@@ -1,5 +1,4 @@
 ﻿using log4net;
-using JlzQualiTool;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,7 +42,7 @@ namespace JlzQualiTool
         internal Round PreviousRound { get; }
         private IMatchupStrategy Strategy { get; }
 
-        public void CreateAndAddMatchup(Team home, Team away)
+        public Matchup CreateAndAddMatchup(Team home, Team away)
         {
             var numberOfMatches = this.Matchups.Count;
 
@@ -61,10 +60,9 @@ namespace JlzQualiTool
                 Id = gameNo
             };
 
-            home.Matchups.Add(matchup);
-            away.Matchups.Add(matchup);
-
             this.Matchups.Add(matchup);
+
+            return matchup;
         }
     }
 }

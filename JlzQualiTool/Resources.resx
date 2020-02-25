@@ -120,7 +120,13 @@
   <data name="FinishFirstRound" xml:space="preserve">
     <value>Runde 1 abschliessen</value>
   </data>
+  <data name="Loser" xml:space="preserve">
+    <value>Verlierer {0}</value>
+  </data>
   <data name="UnexpectedException" xml:space="preserve">
     <value>Unerwarteter Fehler</value>
+  </data>
+  <data name="Winner" xml:space="preserve">
+    <value>Sieger {0}</value>
   </data>
 </root>

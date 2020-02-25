@@ -29,7 +29,7 @@ namespace JlzQualiTool
             // TODO remove eventually
             LoadData();
             //CreateFirstRoundMatchups();
-            CreateMatchups();
+            InitializeMatchups();
         }
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
@@ -63,22 +63,22 @@ namespace JlzQualiTool
 
         public void CreateFirstRoundMatchups()
         {
-            var round = new Round(1, new SeededStrategy(Teams.ToList()), Round.Zero);
+            var round = new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero);
 
             Rounds.Add(round);
         }
 
-        public void CreateMatchups()
+        public void InitializeMatchups()
         {
-            CreateFirstRoundMatchups();
-            FinishFirstRound();
+            Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero));
+            Rounds.Add(new Round(2, new KoStrategy(), Rounds.Last()));
         }
 
         public void FinishFirstRound()
         {
-            var round = new Round(2, new KoStrategy(), Rounds.Last());
+            //var round = new Round(2, new KoStrategy(), Rounds.Last());
 
-            Rounds.Add(round);
+            //Rounds.Add(round);
         }
 
         public void FinishSecondRound()
@@ -151,12 +151,11 @@ namespace JlzQualiTool
             File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
-        public void SaveScore(Matchup machtup)
+        public void SaveScore(Matchup matchup)
         {
-            Log.Debug($"Updating score: {machtup.Home?.Name} - {machtup.Away?.Name} {machtup.HomeGoal} : {machtup.AwayGoal}");
+            Log.Debug($"Updating score: {matchup.Home.Name} - {matchup.Away.Name} {matchup.HomeGoal} : {matchup.AwayGoal}");
 
-            // TODO instead derive from home and away goal? (which need be nullable then)
-            machtup.IsPlayed = true;
+            matchup.RaiseOnMatchPlayedEvent();
 
             UpdateScores();
         }

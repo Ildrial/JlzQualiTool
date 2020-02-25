@@ -70,11 +70,29 @@ namespace JlzQualiTool {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Verlierer {0}.
+        /// </summary>
+        public static string Loser {
+            get {
+                return ResourceManager.GetString("Loser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unerwarteter Fehler.
         /// </summary>
         public static string UnexpectedException {
             get {
                 return ResourceManager.GetString("UnexpectedException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sieger {0}.
+        /// </summary>
+        public static string Winner {
+            get {
+                return ResourceManager.GetString("Winner", resourceCulture);
             }
         }
     }

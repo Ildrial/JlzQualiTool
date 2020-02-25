@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 
 namespace JlzQualiTool
 // TODO rename class
@@ -15,6 +14,15 @@ namespace JlzQualiTool
             Name = "TBD"
         };
 
+        public Team(string dummyName)
+        {
+            Name = dummyName;
+        }
+
+        public Team()
+        {
+        }
+
         public int Difference => this.GoalsScored - this.GoalsReceived;
 
         public int GoalsReceived { get; set; }
@@ -25,8 +33,6 @@ namespace JlzQualiTool
         public int Id { get; set; }
 
         public int Matches { get; set; }
-
-        public IList<Matchup> Matchups { get; } = new List<Matchup>(5);
 
         [DataMember]
         public string? Name { get; set; }
