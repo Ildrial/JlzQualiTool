@@ -7,6 +7,7 @@ using System.Windows.Input;
 namespace JlzQualiTool
 {
     using log4net;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
@@ -27,7 +28,8 @@ namespace JlzQualiTool
 
             // TODO remove eventually
             LoadData();
-            CreateFirstRoundMatchups();
+            //CreateFirstRoundMatchups();
+            CreateMatchups();
         }
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
@@ -36,6 +38,10 @@ namespace JlzQualiTool
 
         public ICommand GenerateResultsCommand => new CommandHandler(this.GenerateRandomResults, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
+
+        public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
+
+        public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
 
         [DataMember]
         public ObservableCollection<Round> Rounds { get; }
@@ -62,11 +68,27 @@ namespace JlzQualiTool
             Rounds.Add(round);
         }
 
+        public void CreateMatchups()
+        {
+            CreateFirstRoundMatchups();
+            FinishFirstRound();
+        }
+
         public void FinishFirstRound()
         {
             var round = new Round(2, new KoStrategy(), Rounds.Last());
 
             Rounds.Add(round);
+        }
+
+        public void FinishSecondRound()
+        {
+            // TODO update table according to rules
+
+            // TODO create new matchups according to strategy
+            //var round = new Round(3, new KoStrategy(), Rounds.Last());
+
+            //Rounds.Add(round);
         }
 
         public void GenerateRandomResults()
@@ -79,6 +101,8 @@ namespace JlzQualiTool
                 {
                     matchup.HomeGoal = random.Next(0, 10);
                     matchup.AwayGoal = random.Next(0, 10);
+
+                    matchup.IsPlayed = true;
 
                     matchup.Publish();
                 }
@@ -145,10 +169,11 @@ namespace JlzQualiTool
             for (int t = 0; t < this.Teams.Count; t++)
             {
                 var team = this.Teams[t];
-                for (int i = 0; i < this.Rounds.Count; i++)
-                {
-                    var matchup = this.Rounds[i].Matchups.Single(m => m.Home == team || m.Away == team);
 
+                var teamMatchups = PlayedMatchups.Where(m => m.Home == team || m.Away == team);
+
+                foreach (var matchup in teamMatchups)
+                {
                     team.Matches++;
 
                     if (matchup.Home == team)
@@ -211,7 +236,7 @@ namespace JlzQualiTool
                 this.action();
             }
 
-            public event EventHandler CanExecuteChanged;
+            public event EventHandler? CanExecuteChanged;
         }
 
         public class ParameterCommandHandler : ICommand
@@ -235,7 +260,7 @@ namespace JlzQualiTool
                 this.action((Matchup)parameter);
             }
 
-            public event EventHandler CanExecuteChanged;
+            public event EventHandler? CanExecuteChanged;
         }
     }
 }

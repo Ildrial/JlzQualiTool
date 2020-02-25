@@ -1,5 +1,4 @@
 ﻿using log4net;
-using JlzQualiTool;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,10 +17,10 @@ namespace JlzQualiTool
 
             if (frm.Count() % 2 == 0)
             {
-                for (int i = 0; i < frm.Count(); i = i + 2)
+                for (int i = 0; i < frm.Count(); i += 2)
                 {
-                    round.CreateAndAddMatchup(frm[i].Winner, frm[i + 1].Winner);
-                    round.CreateAndAddMatchup(frm[i].Loser, frm[i + 1].Loser);
+                    round.CreateAndAddMatchup(frm[i].Winner ?? Team.Tbd, frm[i + 1].Winner ?? Team.Tbd);
+                    round.CreateAndAddMatchup(frm[i].Loser ?? Team.Tbd, frm[i + 1].Loser ?? Team.Tbd);
                 }
             }
             else
@@ -65,6 +64,7 @@ namespace JlzQualiTool
 
         protected override void CreateMatchupsInternal(Round round)
         {
+            // TODO implement behavior for teams not dividable by 4, e.g. 14, 18, ...
             for (int i = 0; i < 4; i++)
             {
                 var home = Teams.First(t => t.Seed == i + 1);

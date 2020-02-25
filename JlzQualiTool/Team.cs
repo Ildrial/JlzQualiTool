@@ -10,9 +10,10 @@ namespace JlzQualiTool
     [DataContract]
     public class Team : INotifyPropertyChanged
     {
-        public Team()
+        public static Team Tbd = new Team()
         {
-        }
+            Name = "TBD"
+        };
 
         public int Difference => this.GoalsScored - this.GoalsReceived;
 
@@ -81,6 +82,6 @@ namespace JlzQualiTool
             return string.IsNullOrEmpty(number) ? 0 : int.Parse(number);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

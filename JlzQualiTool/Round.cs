@@ -43,7 +43,7 @@ namespace JlzQualiTool
         internal Round PreviousRound { get; }
         private IMatchupStrategy Strategy { get; }
 
-        public void CreateAndAddMatchup(Team? home, Team? away)
+        public void CreateAndAddMatchup(Team home, Team away)
         {
             var numberOfMatches = this.Matchups.Count;
 
@@ -51,7 +51,7 @@ namespace JlzQualiTool
             var gameNo = @base + numberOfMatches + 1;
             var time = DateTime.Now;
 
-            Log.Info($" > {gameNo} @ {time.ToString("HH:mm")}: {home?.Name} - {away?.Name}");
+            Log.Info($" > {gameNo} @ {time.ToString("HH:mm")}: {home.Name} - {away.Name}");
 
             var matchup = new Matchup()
             {
@@ -60,8 +60,9 @@ namespace JlzQualiTool
                 Time = time,
                 Id = gameNo
             };
-            home?.Matchups.Add(matchup);
-            away?.Matchups.Add(matchup);
+
+            home.Matchups.Add(matchup);
+            away.Matchups.Add(matchup);
 
             this.Matchups.Add(matchup);
         }

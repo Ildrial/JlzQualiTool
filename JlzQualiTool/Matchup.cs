@@ -8,12 +8,11 @@ namespace JlzQualiTool
     public class Matchup : INotifyPropertyChanged
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
-        private Team? away;
-        private Team? home;
+        private Team away = Team.Tbd;
+        private Team home = Team.Tbd;
 
-        // FIXME why are Ids not serialized?
         [IgnoreDataMember]
-        public Team? Away
+        public Team Away
         {
             get
             {
@@ -22,7 +21,7 @@ namespace JlzQualiTool
             set
             {
                 AwayId = value == null ? -1 : value.Id;
-                this.away = value;
+                this.away = value ?? Team.Tbd;
             }
         }
 
@@ -33,7 +32,7 @@ namespace JlzQualiTool
         public int AwayId { get; set; }
 
         [IgnoreDataMember]
-        public Team? Home
+        public Team Home
         {
             get
             {
@@ -42,7 +41,7 @@ namespace JlzQualiTool
             set
             {
                 HomeId = value == null ? -1 : value.Id;
-                this.home = value;
+                this.home = value ?? Team.Tbd;
             }
         }
 
@@ -55,16 +54,17 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Id { get; set; }
 
+        [DataMember(Order = 5)]
         public bool IsPlayed { get; set; }
 
         [IgnoreDataMember]
-        public Team? Loser => this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
+        public Team? Loser => !IsPlayed ? Team.Tbd : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
-        [DataMember]
+        [IgnoreDataMember]
         public DateTime Time { get; set; }
 
         [IgnoreDataMember]
-        public Team? Winner => this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+        public Team? Winner => !IsPlayed ? Team.Tbd : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public void Publish()
         {
@@ -77,6 +77,6 @@ namespace JlzQualiTool
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

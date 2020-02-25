@@ -23,7 +23,7 @@ namespace JlzQualiTool
         private static void LoadLog4NetConfig()
         {
             XmlDocument log4netConfig = new XmlDocument();
-            log4netConfig.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log4net.config"));
+            log4netConfig.Load(Path.Combine(AppDomain.CurrentDomain?.BaseDirectory ?? "", "log4net.config"));
 
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
 
