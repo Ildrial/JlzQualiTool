@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FinishFirstRound" xml:space="preserve">
-    <value>Runde 1 abschliessen</value>
+  <data name="FinishPhaseOne" xml:space="preserve">
+    <value>Phase 1 abschliessen</value>
   </data>
   <data name="Loser" xml:space="preserve">
     <value>Verlierer {0}</value>

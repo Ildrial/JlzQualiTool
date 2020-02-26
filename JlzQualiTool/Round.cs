@@ -29,7 +29,6 @@ namespace JlzQualiTool
 
         private Round() : this(0, NoStrategy.Get, Zero)
         {
-            // TODO make private
         }
 
         [DataMember(Order = 1)]
@@ -38,7 +37,6 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Number { get; private set; }
 
-        public List<Team> Ranking { get; private set; }
         internal Round PreviousRound { get; }
         private IMatchupStrategy Strategy { get; }
 

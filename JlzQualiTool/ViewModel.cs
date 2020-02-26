@@ -34,7 +34,7 @@ namespace JlzQualiTool
 
         public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
 
-        public ICommand FinishFirstRoundCommand => new CommandHandler(this.FinishFirstRound, true);
+        public ICommand FinishPhaseOneCommand => new CommandHandler(this.FinishPhaseOne, true);
 
         public ICommand GenerateResultsCommand => new CommandHandler(this.GenerateRandomResults, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
@@ -74,20 +74,11 @@ namespace JlzQualiTool
             Rounds.Add(new Round(2, new KoStrategy(), Rounds.Last()));
         }
 
-        public void FinishFirstRound()
+        public void FinishPhaseOne()
         {
             //var round = new Round(2, new KoStrategy(), Rounds.Last());
 
-            //Rounds.Add(round);
-        }
-
-        public void FinishSecondRound()
-        {
-            // TODO update table according to rules
-
-            // TODO create new matchups according to strategy
-            //var round = new Round(3, new KoStrategy(), Rounds.Last());
-
+            var ranking = new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups));
             //Rounds.Add(round);
         }
 
@@ -207,6 +198,14 @@ namespace JlzQualiTool
 
                 team.Publish();
             }
+
+            UpdateRankings();
+        }
+
+        private void UpdateRankings()
+        {
+            // TODO implement
+            //Rounds[1].
         }
 
         private void ClearScores()

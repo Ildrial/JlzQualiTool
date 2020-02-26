@@ -61,11 +61,11 @@ namespace JlzQualiTool {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Runde 1 abschliessen.
+        ///   Looks up a localized string similar to Phase 1 abschliessen.
         /// </summary>
-        public static string FinishFirstRound {
+        public static string FinishPhaseOne {
             get {
-                return ResourceManager.GetString("FinishFirstRound", resourceCulture);
+                return ResourceManager.GetString("FinishPhaseOne", resourceCulture);
             }
         }
         

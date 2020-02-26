@@ -127,14 +127,14 @@
                  Grid.Column="1" />
 
         <Button x:Name="FinishFirstRound"
-                Content="{x:Static local:Resources.FinishFirstRound}"
+                Content="{x:Static local:Resources.FinishPhaseOne}"
                 Grid.Row="2"
                 Grid.Column="1"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Width="75"
                 Margin="10,10,10,0"
-                Command="{Binding FinishFirstRoundCommand, Mode=OneWay}" />
+                Command="{Binding FinishPhaseOneCommand, Mode=OneWay}" />
 
         <ListBox ItemsSource="{Binding Path=Rounds[1].Matchups}"
                  ItemTemplate="{StaticResource matchupTemplate}"

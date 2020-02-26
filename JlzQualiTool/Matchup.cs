@@ -58,14 +58,45 @@ namespace JlzQualiTool
         [DataMember(Order = 5)]
         public bool IsPlayed { get; set; }
 
+        public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
+
         [IgnoreDataMember]
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
+
+        public int Round => Id / 100;
 
         [IgnoreDataMember]
         public DateTime Time { get; set; }
 
         [IgnoreDataMember]
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+
+        public int GoalsReceived(Team team)
+        {
+            return !WithTeam(team)
+                ? 0
+                : Away == team
+                    ? HomeGoal != null ? HomeGoal.Value : 0
+                    : AwayGoal != null ? AwayGoal.Value : 0;
+        }
+
+        public int GoalsScored(Team team)
+        {
+            return !WithTeam(team)
+                ? 0
+                : Away == team
+                    ? AwayGoal != null ? AwayGoal.Value : 0
+                    : HomeGoal != null ? HomeGoal.Value : 0;
+        }
+
+        public int Points(Team team)
+        {
+            return !WithTeam(team)
+                ? 0
+                : IsTie
+                    ? 1
+                    : Winner == team ? 2 : 0;
+        }
 
         public void Publish()
         {
@@ -79,6 +110,11 @@ namespace JlzQualiTool
         public void RaiseOnMatchPlayedEvent()
         {
             OnMatchPlayedEvent?.Invoke(this, EventArgs.Empty);
+        }
+
+        public bool WithTeam(Team team)
+        {
+            return Away == team || Home == team;
         }
 
         protected void OnPropertyChanged(string name)
