@@ -36,11 +36,8 @@ namespace JlzQualiTool
 
         public ICommand FinishPhaseOneCommand => new CommandHandler(this.FinishPhaseOne, true);
 
-        public ICommand GenerateResultsCommand => new CommandHandler(this.GenerateRandomResults, true);
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
-
         public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
-
         public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
 
         [DataMember]
@@ -48,6 +45,7 @@ namespace JlzQualiTool
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
         public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
+        public ICommand SimulateResultsCommand => new CommandHandler(this.SimulateResults, true);
 
         [DataMember]
         public ObservableCollection<Team> Teams { get; set; }
@@ -68,38 +66,17 @@ namespace JlzQualiTool
             Rounds.Add(round);
         }
 
+        public void FinishPhaseOne()
+        {
+            var ranking = new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups));
+
+            // TODO sort ranking according to round stategy and place ranking in corresponding round
+        }
+
         public void InitializeMatchups()
         {
             Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero));
             Rounds.Add(new Round(2, new KoStrategy(), Rounds.Last()));
-        }
-
-        public void FinishPhaseOne()
-        {
-            //var round = new Round(2, new KoStrategy(), Rounds.Last());
-
-            var ranking = new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups));
-            //Rounds.Add(round);
-        }
-
-        public void GenerateRandomResults()
-        {
-            var random = new Random(10);
-
-            for (int i = 0; i < this.Rounds.Count; i++)
-            {
-                foreach (var matchup in this.Rounds[i].Matchups.Where(m => !m.IsPlayed))
-                {
-                    matchup.HomeGoal = random.Next(0, 10);
-                    matchup.AwayGoal = random.Next(0, 10);
-
-                    matchup.IsPlayed = true;
-
-                    matchup.Publish();
-                }
-            }
-
-            this.UpdateScores();
         }
 
         public void LoadData()
@@ -148,7 +125,28 @@ namespace JlzQualiTool
 
             matchup.RaiseOnMatchPlayedEvent();
 
-            UpdateScores();
+            this.UpdateScores();
+        }
+
+        public void SimulateResults()
+        {
+            var random = new Random(10);
+
+            for (int i = 0; i < this.Rounds.Count; i++)
+            {
+                foreach (var matchup in this.Rounds[i].Matchups.Where(m => !m.IsPlayed && m.IsFixed))
+                {
+                    matchup.HomeGoal = random.Next(0, 10);
+                    matchup.AwayGoal = random.Next(0, 10);
+
+                    this.SaveScore(matchup);
+
+                    // TODO needed?
+                    matchup.Publish();
+                }
+            }
+
+            this.UpdateScores();
         }
 
         public void UpdateScores()
@@ -202,15 +200,15 @@ namespace JlzQualiTool
             UpdateRankings();
         }
 
+        private void ClearScores()
+        {
+            Teams.ToList().ForEach(t => t.ClearRankingInfo());
+        }
+
         private void UpdateRankings()
         {
             // TODO implement
             //Rounds[1].
-        }
-
-        private void ClearScores()
-        {
-            Teams.ToList().ForEach(t => t.ClearRankingInfo());
         }
 
         public class CommandHandler : ICommand

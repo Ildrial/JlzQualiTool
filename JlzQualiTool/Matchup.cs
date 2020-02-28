@@ -54,9 +54,11 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Id { get; set; }
 
+        public bool IsFixed => Home != null && Away != null;
+
         // TODO derive from home/away goals
         [DataMember(Order = 5)]
-        public bool IsPlayed { get; set; }
+        public bool IsPlayed { get; private set; }
 
         public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
 

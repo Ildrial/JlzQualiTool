@@ -100,14 +100,14 @@
                     Margin="10,10,10,0"
                     Command="{Binding SaveCommand, Mode=OneWay}" />
             <Button x:Name="GenerateResults"
-                    Content="Generate Results"
-                    Grid.Row="0"
+                    Content="Simulieren"
                     Grid.Column="2"
+                    Grid.Row="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Width="75"
                     Margin="10,10,10,0"
-                    Command="{Binding GenerateResultsCommand, Mode=OneWay}" />
+                    Command="{Binding SimulateResultsCommand, Mode=OneWay}" />
         </Grid>
         <Button x:Name="CreateMatchups1"
                 Content="CreateMatchups1"
