@@ -26,6 +26,8 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -142,5 +144,23 @@
                  KeyboardNavigation.TabNavigation="Cycle"
                  Grid.Row="0"
                  Grid.Column="2" />
+        <ListBox ItemsSource="{Binding Path=Rounds[2].Matchups}"
+                 ItemTemplate="{StaticResource matchupTemplate}"
+                 IsTabStop="False"
+                 KeyboardNavigation.TabNavigation="Cycle"
+                 Grid.Row="0"
+                 Grid.Column="3" />
+        <ListBox ItemsSource="{Binding Path=Rounds[3].Matchups}"
+                 ItemTemplate="{StaticResource matchupTemplate}"
+                 IsTabStop="False"
+                 KeyboardNavigation.TabNavigation="Cycle"
+                 Grid.Row="0"
+                 Grid.Column="4" />
+        <ListBox ItemsSource="{Binding Path=Rounds[4].Matchups}"
+                 ItemTemplate="{StaticResource matchupTemplate}"
+                 IsTabStop="False"
+                 KeyboardNavigation.TabNavigation="Cycle"
+                 Grid.Row="0"
+                 Grid.Column="5" />
     </Grid>
 </Window>

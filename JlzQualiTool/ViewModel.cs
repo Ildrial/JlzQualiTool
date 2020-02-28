@@ -76,7 +76,10 @@ namespace JlzQualiTool
         public void InitializeMatchups()
         {
             Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero));
-            Rounds.Add(new Round(2, new KoStrategy(), Rounds.Last()));
+            Rounds.Add(new Round(2, new KoStrategy(), Rounds[0]));
+            Rounds.Add(new Round(3, new KoStrategy(), Rounds[1]));
+            Rounds.Add(new Round(4, new KoStrategy(), Rounds[2]));
+            Rounds.Add(new Round(5, new KoStrategy(), Rounds[3]));
         }
 
         public void LoadData()
