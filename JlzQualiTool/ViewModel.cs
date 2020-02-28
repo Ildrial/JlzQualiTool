@@ -32,10 +32,6 @@ namespace JlzQualiTool
             InitializeMatchups();
         }
 
-        public ICommand CreateMatchups1Command => new CommandHandler(this.CreateFirstRoundMatchups, true);
-
-        public ICommand FinishPhaseOneCommand => new CommandHandler(this.FinishPhaseOne, true);
-
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
         public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
         public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
@@ -59,27 +55,19 @@ namespace JlzQualiTool
             args.Handled = true;
         }
 
-        public void CreateFirstRoundMatchups()
-        {
-            var round = new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero);
-
-            Rounds.Add(round);
-        }
-
-        public void FinishPhaseOne()
-        {
-            var ranking = new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups));
-
-            // TODO sort ranking according to round stategy and place ranking in corresponding round
-        }
-
         public void InitializeMatchups()
         {
-            Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero));
-            Rounds.Add(new Round(2, new KoStrategy(), Rounds[0]));
-            Rounds.Add(new Round(3, new KoStrategy(), Rounds[1]));
-            Rounds.Add(new Round(4, new KoStrategy(), Rounds[2]));
-            Rounds.Add(new Round(5, new KoStrategy(), Rounds[3]));
+            // TODO add correct ranking logic to delegates
+            Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero, m => RankingSnapshot.None));
+            Rounds.Add(new Round(2, new KoStrategy(), Rounds[0],
+                m => new RankingSnapshot(m)));
+            // TODO use correct strategies
+            Rounds.Add(new Round(3, new KoStrategy(), Rounds[1],
+                m => new RankingSnapshot(m)));
+            Rounds.Add(new Round(4, new KoStrategy(), Rounds[2],
+                m => new RankingSnapshot(m)));
+            Rounds.Add(new Round(5, new KoStrategy(), Rounds[3],
+                m => new RankingSnapshot(m)));
         }
 
         public void LoadData()
@@ -210,8 +198,8 @@ namespace JlzQualiTool
 
         private void UpdateRankings()
         {
-            // TODO implement
-            //Rounds[1].
+            // TODO implement and simply pass as delegate
+            var ranking = new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups));
         }
 
         public class CommandHandler : ICommand

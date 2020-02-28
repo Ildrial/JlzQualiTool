@@ -8,6 +8,8 @@ namespace JlzQualiTool
 {
     public class RankingSnapshot : ObservableCollection<RankingEntry>
     {
+        public static RankingSnapshot None = new RankingSnapshot();
+
         public RankingSnapshot(IEnumerable<Matchup> matchups)
         {
             var teams = matchups.SelectMany(x => new List<Team> { x.Away, x.Home }).Distinct();
@@ -26,6 +28,10 @@ namespace JlzQualiTool
 
             // TODO how to correctly do all in one?
             //var testAll = matchups.GroupBy(x => x.Home).Select(x => new RankingEntry(x.Key, x.Sum(y => y.Points(x.Key)), x.Sum(y => y.GoalsScored(x.Key)), x.Sum(y => y.GoalsReceived(x.Key))));
+        }
+
+        private RankingSnapshot()
+        {
         }
     }
 }

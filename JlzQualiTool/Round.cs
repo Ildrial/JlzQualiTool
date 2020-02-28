@@ -14,11 +14,12 @@ namespace JlzQualiTool
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
 
         // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
-        public Round(int number, IMatchupStrategy strategy, Round previousRound)
+        public Round(int number, IMatchupStrategy strategy, Round previousRound, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
         {
             this.Number = number;
             this.Strategy = strategy;
             this.PreviousRound = previousRound;
+            this.RankingOrder = rankingOrder;
 
             // TODO correct place to do that?
             if (strategy != NoStrategy.Get)
@@ -27,7 +28,7 @@ namespace JlzQualiTool
             }
         }
 
-        private Round() : this(0, NoStrategy.Get, Zero)
+        private Round() : this(0, NoStrategy.Get, Zero, x => { return RankingSnapshot.None; })
         {
         }
 
@@ -38,6 +39,7 @@ namespace JlzQualiTool
         public int Number { get; private set; }
 
         internal Round PreviousRound { get; }
+        private Func<IEnumerable<Matchup>, RankingSnapshot> RankingOrder { get; }
         private IMatchupStrategy Strategy { get; }
 
         public Matchup CreateAndAddMatchup(Team home, Team away)
