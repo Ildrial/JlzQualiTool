@@ -13,7 +13,7 @@ namespace JlzQualiTool
         public static Round Zero = new Round();
 
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
-        private ObservableCollection<RankingEntry> ranking;
+        private RankingSnapshot ranking;
 
         // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
         public Round(int number, IMatchupStrategy strategy, Round previousRound, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
@@ -40,7 +40,7 @@ namespace JlzQualiTool
         [DataMember(Order = 0)]
         public int Number { get; private set; }
 
-        public ObservableCollection<RankingEntry> Ranking
+        public RankingSnapshot Ranking
         {
             get => ranking;
             set

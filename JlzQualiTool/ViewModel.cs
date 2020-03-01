@@ -199,7 +199,7 @@ namespace JlzQualiTool
         private void UpdateRankings()
         {
             // TODO implement and simply pass as delegate, improve code
-            Rounds[1].Ranking = new ObservableCollection<RankingEntry>(new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups)).OrderByDescending(e => e.Position));
+            Rounds[1].Ranking = new RankingSnapshot(new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups)).OrderByDescending(e => e.Position));
         }
 
         public class CommandHandler : ICommand

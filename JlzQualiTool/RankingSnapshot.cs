@@ -10,6 +10,9 @@ namespace JlzQualiTool
     {
         public static RankingSnapshot None = new RankingSnapshot();
 
+        public RankingSnapshot(IEnumerable<RankingEntry> rankingEntries)
+            : base(rankingEntries) { }
+
         public RankingSnapshot(IEnumerable<Matchup> matchups)
         {
             var teams = matchups.SelectMany(x => new List<Team> { x.Away, x.Home }).Distinct();
