@@ -2,16 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace JlzQualiTool
 {
     [DataContract]
-    public class Round
+    public class Round : INotifyPropertyChanged
     {
         public static Round Zero = new Round();
 
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
+        private ObservableCollection<RankingEntry> ranking;
 
         // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
         public Round(int number, IMatchupStrategy strategy, Round previousRound, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
@@ -37,6 +39,16 @@ namespace JlzQualiTool
 
         [DataMember(Order = 0)]
         public int Number { get; private set; }
+
+        public ObservableCollection<RankingEntry> Ranking
+        {
+            get => ranking;
+            set
+            {
+                ranking = value;
+                OnPropertyChanged("Ranking");
+            }
+        }
 
         internal Round PreviousRound { get; }
         private Func<IEnumerable<Matchup>, RankingSnapshot> RankingOrder { get; }
@@ -64,5 +76,13 @@ namespace JlzQualiTool
 
             return matchup;
         }
+
+        // Create the OnPropertyChanged method to raise the event
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

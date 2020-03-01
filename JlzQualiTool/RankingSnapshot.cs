@@ -24,6 +24,8 @@ namespace JlzQualiTool
                 var goalsReceived = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsReceived(team));
                 var rankingEntry = new RankingEntry(team, gamesPlayed, points, goalsScored, goalsReceived);
                 this.Add(rankingEntry);
+
+                rankingEntry.Publish();
             }
 
             // TODO how to correctly do all in one?
