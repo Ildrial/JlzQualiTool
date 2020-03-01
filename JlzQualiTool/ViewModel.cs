@@ -60,14 +60,14 @@ namespace JlzQualiTool
             // TODO add correct ranking logic to delegates
             Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero, m => RankingSnapshot.None));
             Rounds.Add(new Round(2, new KoStrategy(), Rounds[0],
-                m => new RankingSnapshot(m)));
+                m => new RankingSnapshot(m, new List<int> { 1, 2, 3 })));
             // TODO use correct strategies
             Rounds.Add(new Round(3, new KoStrategy(), Rounds[1],
-                m => new RankingSnapshot(m)));
+                m => new RankingSnapshot(m, new List<int> { 3, 5 })));
             Rounds.Add(new Round(4, new KoStrategy(), Rounds[2],
-                m => new RankingSnapshot(m)));
+                m => new RankingSnapshot(m, new List<int>())));
             Rounds.Add(new Round(5, new KoStrategy(), Rounds[3],
-                m => new RankingSnapshot(m)));
+                m => new RankingSnapshot(m, new List<int>())));
         }
 
         public void LoadData()
@@ -144,7 +144,6 @@ namespace JlzQualiTool
         {
             ClearScores();
 
-            // FIXME check for IsPlayed, recalculate whole table every time!
             for (int t = 0; t < this.Teams.Count; t++)
             {
                 var team = this.Teams[t];
@@ -198,8 +197,11 @@ namespace JlzQualiTool
 
         private void UpdateRankings()
         {
-            // TODO implement and simply pass as delegate, improve code
-            Rounds[1].Ranking = new RankingSnapshot(new RankingSnapshot(Rounds.Where(r => r.Number < 3).SelectMany(x => x.Matchups)).OrderByDescending(e => e.Position));
+            // No ranking for round 1
+            for (int i = 1; i < Rounds.Count; i++)
+            {
+                Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups));
+            }
         }
 
         public class CommandHandler : ICommand

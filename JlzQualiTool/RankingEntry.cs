@@ -9,7 +9,7 @@ namespace JlzQualiTool
     {
         private static Random Randomizer = new Random(DateTime.Now.Millisecond);
 
-        public RankingEntry(Team team, int gamesPlayed, int points, int goalsScored, int goalsReceived)
+        public RankingEntry(Team team, int gamesPlayed, int points, int goalsScored, int goalsReceived, bool isInversed)
         {
             Team = team;
             GamesPlayed = gamesPlayed;
@@ -30,23 +30,20 @@ namespace JlzQualiTool
         {
             get
             {
-                // TODO must not be hard coded. make configurable
-                var modifiedDifference = (Points == 4 || Points == 0)
-                    ? 1000 + Difference
-                    : (1000 - Difference);
-                // TODO for 0 points correct? according to qualiturnier rotkreuz not! verify with DH
-                var goalsScored = (Points == 4 || Points == 0)
-                    ? GoalsScored
-                    : (1000 - GoalsScored);
+                var modifiedDifference = IsInversed
+                    ? (1000 - Difference)
+                    : 1000 + Difference;
+                var goalsScored = IsInversed
+                    ? (1000 - GoalsScored)
+                    : GoalsScored;
 
-                //int.TryParse($"{Points}{modifiedDifference.ToString("0000")}{goalsScored.ToString("0000")}", out int result);
-                //return result;
                 return $"{Points.ToString("00")}.{modifiedDifference.ToString("0000")}.{goalsScored.ToString("0000")}.{Chance.ToString("000000")}";
             }
         }
 
         public Team Team { get; }
         private int Chance { get; }
+        private bool IsInversed { get; }
 
         public void Publish()
         {

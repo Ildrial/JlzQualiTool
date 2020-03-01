@@ -15,7 +15,6 @@ namespace JlzQualiTool
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
         private RankingSnapshot ranking;
 
-        // TODO consider to have Round inherit from ObservableCollection<Matchup> instead of wrapping it.
         public Round(int number, IMatchupStrategy strategy, Round previousRound, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
         {
             this.Number = number;
@@ -28,6 +27,8 @@ namespace JlzQualiTool
             {
                 Strategy.CreateMatchups(this);
             }
+
+            Ranking = RankingSnapshot.None;
         }
 
         private Round() : this(0, NoStrategy.Get, Zero, x => { return RankingSnapshot.None; })
@@ -48,6 +49,11 @@ namespace JlzQualiTool
                 ranking = value;
                 OnPropertyChanged("Ranking");
             }
+        }
+
+        public void UpdateRanking(IEnumerable<Matchup> matchups)
+        {
+            this.Ranking = RankingOrder.Invoke(matchups);
         }
 
         internal Round PreviousRound { get; }

@@ -13,8 +13,10 @@ namespace JlzQualiTool
         public RankingSnapshot(IEnumerable<RankingEntry> rankingEntries)
             : base(rankingEntries) { }
 
-        public RankingSnapshot(IEnumerable<Matchup> matchups)
+        public RankingSnapshot(IEnumerable<Matchup> matchups, List<int> pointsWithInversedOrder)
         {
+            List<RankingEntry> rankingEntires = new List<RankingEntry>();
+
             var teams = matchups.SelectMany(x => new List<Team> { x.Away, x.Home }).Distinct();
             foreach (var team in teams)
             {
@@ -25,10 +27,18 @@ namespace JlzQualiTool
                 var points = matchups.Where(m => m.WithTeam(team)).Sum(x => x.Points(team));
                 var goalsScored = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsScored(team));
                 var goalsReceived = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsReceived(team));
-                var rankingEntry = new RankingEntry(team, gamesPlayed, points, goalsScored, goalsReceived);
-                this.Add(rankingEntry);
+                var rankingEntry = new RankingEntry(team, gamesPlayed, points, goalsScored, goalsReceived, pointsWithInversedOrder.Contains(points));
+                rankingEntires.Add(rankingEntry);
 
+                // TODO must be in observable collection?
                 rankingEntry.Publish();
+            }
+
+            rankingEntires = rankingEntires.OrderByDescending(e => e.Position).ToList();
+
+            foreach (var entry in rankingEntires)
+            {
+                this.Add(entry);
             }
 
             // TODO how to correctly do all in one?
