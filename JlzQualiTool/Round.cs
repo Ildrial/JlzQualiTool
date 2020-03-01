@@ -51,13 +51,10 @@ namespace JlzQualiTool
             }
         }
 
-        public void UpdateRanking(IEnumerable<Matchup> matchups)
-        {
-            this.Ranking = RankingOrder.Invoke(matchups);
-        }
-
         internal Round PreviousRound { get; }
+
         private Func<IEnumerable<Matchup>, RankingSnapshot> RankingOrder { get; }
+
         private IMatchupStrategy Strategy { get; }
 
         public Matchup CreateAndAddMatchup(Team home, Team away)
@@ -81,6 +78,12 @@ namespace JlzQualiTool
             this.Matchups.Add(matchup);
 
             return matchup;
+        }
+
+        public void UpdateRanking(IEnumerable<Matchup> matchups)
+        {
+            Log.Info($"Updating ranking for round {Number}:");
+            this.Ranking = RankingOrder.Invoke(matchups);
         }
 
         // Create the OnPropertyChanged method to raise the event

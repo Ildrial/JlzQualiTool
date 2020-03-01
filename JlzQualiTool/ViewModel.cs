@@ -121,6 +121,7 @@ namespace JlzQualiTool
 
         public void SimulateResults()
         {
+            Log.Info("Simulating results...");
             var random = new Random(10);
 
             for (int i = 0; i < this.Rounds.Count; i++)
@@ -129,6 +130,8 @@ namespace JlzQualiTool
                 {
                     matchup.HomeGoal = random.Next(0, 10);
                     matchup.AwayGoal = random.Next(0, 10);
+
+                    Log.Info($" - Matchup {matchup.Id}: {matchup.HomeGoal} : {matchup.AwayGoal}");
 
                     this.SaveScore(matchup);
 
@@ -192,6 +195,7 @@ namespace JlzQualiTool
 
         private void ClearScores()
         {
+            Log.Info("Clearing scores...");
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
         }
 
@@ -200,6 +204,7 @@ namespace JlzQualiTool
             // No ranking for round 1
             for (int i = 1; i < Rounds.Count; i++)
             {
+                Log.Info($"Updating ranking for round {i}.");
                 Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups));
             }
         }

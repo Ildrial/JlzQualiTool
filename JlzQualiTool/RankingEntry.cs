@@ -17,6 +17,7 @@ namespace JlzQualiTool
             GoalsScored = goalsScored;
             GoalsReceived = goalsReceived;
             Chance = Randomizer.Next(1000000);
+            IsInversed = isInversed;
         }
 
         public int Difference => GoalsScored - GoalsReceived;
@@ -44,15 +45,6 @@ namespace JlzQualiTool
         public Team Team { get; }
         private int Chance { get; }
         private bool IsInversed { get; }
-
-        public void Publish()
-        {
-            this.OnPropertyChanged("Team");
-            this.OnPropertyChanged("Points");
-            this.OnPropertyChanged("GoalsScored");
-            this.OnPropertyChanged("GoalsReceived");
-            this.OnPropertyChanged("Difference");
-        }
 
         // Create the OnPropertyChanged method to raise the event
         protected void OnPropertyChanged(string name)

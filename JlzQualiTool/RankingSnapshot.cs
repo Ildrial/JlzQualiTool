@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace JlzQualiTool
 {
     public class RankingSnapshot : ObservableCollection<RankingEntry>
     {
+        private static ILog Log = log4net.LogManager.GetLogger(typeof(RankingSnapshot));
         public static RankingSnapshot None = new RankingSnapshot();
 
         public RankingSnapshot(IEnumerable<RankingEntry> rankingEntries)
@@ -29,15 +31,13 @@ namespace JlzQualiTool
                 var goalsReceived = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsReceived(team));
                 var rankingEntry = new RankingEntry(team, gamesPlayed, points, goalsScored, goalsReceived, pointsWithInversedOrder.Contains(points));
                 rankingEntires.Add(rankingEntry);
-
-                // TODO must be in observable collection?
-                rankingEntry.Publish();
             }
 
             rankingEntires = rankingEntires.OrderByDescending(e => e.Position).ToList();
 
             foreach (var entry in rankingEntires)
             {
+                Log.Info($" - 1. {entry.Team.Name}: {entry.GamesPlayed}, {entry.Points}, {entry.GoalsScored} : {entry.GoalsReceived} ({entry.Position}).");
                 this.Add(entry);
             }
 
