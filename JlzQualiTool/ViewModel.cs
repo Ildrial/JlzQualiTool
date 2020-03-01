@@ -7,6 +7,7 @@ using System.Windows.Input;
 namespace JlzQualiTool
 {
     using log4net;
+    using Microsoft.Win32;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
@@ -17,6 +18,7 @@ namespace JlzQualiTool
     [DataContract]
     public class ViewModel //: INotifyPropertyChanged
     {
+        private static readonly string TimeMatchupSeparator = "---";
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
 
         public ViewModel()
@@ -26,10 +28,8 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
-            // TODO remove eventually
-            LoadData();
-            //CreateFirstRoundMatchups();
-            InitializeMatchups();
+            LoadSampleData();
+            SimulateResults();
         }
 
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
@@ -72,17 +72,40 @@ namespace JlzQualiTool
 
         public void LoadData()
         {
+            // TODO correct one?
+            var dialog = new OpenFileDialog();
+            dialog.InitialDirectory = Settings.SavePath;
+
+            var showDialog = dialog.ShowDialog();
+
+            if (showDialog.HasValue ? showDialog.Value : false)
+            {
+                LoadData(dialog.FileName);
+            }
+        }
+
+        public void LoadData(string fileName)
+        {
             this.Teams.Clear();
 
-            // TODO file selector instead
-            var lines = File.ReadLines("../../../SampleData.txt", Encoding.Default);
-            foreach (var line in lines)
+            Log.Info($"Loading data from file '{fileName}'.");
+
+            var lines = File.ReadLines(fileName, Encoding.Default);
+            var e = lines.GetEnumerator();
+            while (e.MoveNext())
             {
-                Team team = Team.FromLine(line);
+                if (e.Current.Equals(TimeMatchupSeparator))
+                {
+                    // TODO check alternative: FromLine returns null as indicator.
+                    break;
+                }
+                Team team = Team.FromLine(e.Current);
                 this.Teams.Add(team);
                 // TODO improve ID behavior
                 team.Id = Teams.Count;
             }
+
+            Log.Info($" - {Teams.Count} teams loaded.");
 
             var orderedTeams = this.Teams.OrderByDescending(t => t.PreSeasonPonits).ToList();
 
@@ -90,29 +113,72 @@ namespace JlzQualiTool
             {
                 orderedTeams[i].Seed = i + 1;
             }
+
+            this.Rounds.Clear();
+            this.InitializeMatchups();
+
+            int matchupCounter = 0;
+            while (e.MoveNext())
+            {
+                // TODO improve exception handling
+                var cells = e.Current.Split(',');
+                if (cells.Count() < 2)
+                {
+                    // TODO alternative: exception.
+                    break;
+                }
+                var matchId = int.Parse(cells[0].Trim());
+                var score = cells[1].Trim().Split(':');
+                if (score.Count() < 2)
+                {
+                    // TODO alternative: exception.
+                    break;
+                }
+                var matchup = Matchups.Single(m => m.Id == matchId);
+                matchup.HomeGoal = int.Parse(score[0]);
+                matchup.AwayGoal = int.Parse(score[1]);
+
+                this.SaveScore(matchup);
+                matchup.Publish();
+
+                matchupCounter++;
+            }
+
+            Log.Info($" - {matchupCounter} matchups loaded.");
+        }
+
+        public void LoadSampleData()
+        {
+            this.LoadData(@"../../../SampleData.txt");
         }
 
         public void SaveData()
         {
-            var knownTypes = new Type[] { typeof(Team), typeof(Round) };
-
-            var ms = new MemoryStream();
-            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
-            ser.WriteObject(ms, this);
-            byte[] json = ms.ToArray();
-            ms.Close();
-
             if (!Directory.Exists(Settings.SavePath))
             {
                 Directory.CreateDirectory(Settings.SavePath);
             }
 
-            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
+            var path = Path.Combine(Settings.SavePath, @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data");
+            StreamWriter file = new StreamWriter(path);
+            foreach (var team in Teams)
+            {
+                file.WriteLine($"{team.Name}, {team.PreSeasonPonits}, {team.SelfAssessmentPoints}");
+            }
+
+            file.WriteLine(TimeMatchupSeparator);
+
+            foreach (var matchup in Matchups.Where(m => m.IsPlayed))
+            {
+                file.WriteLine($"{matchup.Id}, {matchup.HomeGoal}:{matchup.AwayGoal}");
+            }
+
+            file.Close();
         }
 
         public void SaveScore(Matchup matchup)
         {
-            Log.Debug($"Updating score: {matchup.Home.Name} - {matchup.Away.Name} {matchup.HomeGoal} : {matchup.AwayGoal}");
+            Log.Debug($"Updating score ({matchup.Id}): {matchup.Home.Name} - {matchup.Away.Name} {matchup.HomeGoal} : {matchup.AwayGoal}");
 
             matchup.RaiseOnMatchPlayedEvent();
 
@@ -131,16 +197,10 @@ namespace JlzQualiTool
                     matchup.HomeGoal = random.Next(0, 10);
                     matchup.AwayGoal = random.Next(0, 10);
 
-                    Log.Info($" - Matchup {matchup.Id}: {matchup.HomeGoal} : {matchup.AwayGoal}");
-
                     this.SaveScore(matchup);
-
-                    // TODO needed?
                     matchup.Publish();
                 }
             }
-
-            this.UpdateScores();
         }
 
         public void UpdateScores()
@@ -197,6 +257,25 @@ namespace JlzQualiTool
         {
             Log.Info("Clearing scores...");
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
+        }
+
+        [Obsolete("Saving not done via serializing anymore.")]
+        private void SaveBySerializing()
+        {
+            var knownTypes = new Type[] { typeof(Team), typeof(Round) };
+
+            var ms = new MemoryStream();
+            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
+            ser.WriteObject(ms, this);
+            byte[] json = ms.ToArray();
+            ms.Close();
+
+            if (!Directory.Exists(Settings.SavePath))
+            {
+                Directory.CreateDirectory(Settings.SavePath);
+            }
+
+            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
         private void UpdateRankings()
