@@ -47,7 +47,7 @@ namespace JlzQualiTool
             set
             {
                 ranking = value;
-                OnPropertyChanged("Ranking");
+                RaiseOnRankingUpdatedEvent();
             }
         }
 
@@ -80,6 +80,11 @@ namespace JlzQualiTool
             return matchup;
         }
 
+        public void RaiseOnRankingUpdatedEvent()
+        {
+            OnRankingUpdatedEvent?.Invoke(this, EventArgs.Empty);
+        }
+
         public void UpdateRanking(IEnumerable<Matchup> matchups)
         {
             Log.Info($"Updating ranking for round {Number}:");
@@ -91,6 +96,14 @@ namespace JlzQualiTool
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        public event EventHandler OnRankingUpdatedEvent = new EventHandler((o, e) =>
+                        {
+                            if (o != null)
+                            {
+                                ((Round)o).OnPropertyChanged("Ranking");
+                            }
+                        });
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

@@ -16,8 +16,9 @@ namespace JlzQualiTool
             Points = points;
             GoalsScored = goalsScored;
             GoalsReceived = goalsReceived;
-            Chance = Randomizer.Next(1000000);
             IsInversed = isInversed;
+            // TODO improve random number: currently it is changed every update and may change predictions!
+            Chance = Randomizer.Next(1000000);
         }
 
         public int Difference => GoalsScored - GoalsReceived;

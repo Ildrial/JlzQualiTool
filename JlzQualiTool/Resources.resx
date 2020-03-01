@@ -123,6 +123,9 @@
   <data name="Loser" xml:space="preserve">
     <value>Verlierer {0}</value>
   </data>
+  <data name="Rank" xml:space="preserve">
+    <value>{0}. Rang</value>
+  </data>
   <data name="UnexpectedException" xml:space="preserve">
     <value>Unerwarteter Fehler</value>
   </data>

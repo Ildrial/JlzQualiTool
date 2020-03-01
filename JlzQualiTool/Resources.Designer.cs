@@ -79,6 +79,15 @@ namespace JlzQualiTool {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}. Rang.
+        /// </summary>
+        public static string Rank {
+            get {
+                return ResourceManager.GetString("Rank", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unerwarteter Fehler.
         /// </summary>
         public static string UnexpectedException {

@@ -3,6 +3,5 @@
 ################################################################################
 
 /.vs/JlzQualiTool
-/JlzQualiTool/bin/Debug/netcoreapp3.0
-/JlzQualiTool/obj/Debug/netcoreapp3.0
-/JlzQualiTool/obj
+/JlzQualiTool/bin/Debug/**
+/JlzQualiTool/obj/**
