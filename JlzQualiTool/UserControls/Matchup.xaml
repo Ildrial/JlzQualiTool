@@ -18,22 +18,17 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60" />
             <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="60" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="Time"
-                 Grid.Column="0"
-                 Focusable="False"
-                 Height="23"
-                 Grid.Row="1"
-                 TextWrapping="Wrap"
-                 Text="{Binding Path=Time, StringFormat=hh:mm}"
-                 Width="55"
-                 Margin="5 0 0 0 " />
-        <Label Content="{Binding Path=Id}"
-               Grid.Column="1"
-               Grid.Row="1" />
+        <Label x:Name="Time"
+               Grid.Column="0"
+               Focusable="False"
+               Grid.Row="1"
+               Content="{Binding Path=GameInfo}"
+               Width="150"
+               HorizontalAlignment="Left" />
 
         <TextBox x:Name="Home"
                  IsReadOnly="True"

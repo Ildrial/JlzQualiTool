@@ -14,6 +14,7 @@ namespace JlzQualiTool
 
         public int AwayId { get; set; }
 
+        public int Court { get; set; }
         public Team Home { get; set; } = Team.Tbd;
 
         public int? HomeGoal { get; set; }
@@ -32,9 +33,10 @@ namespace JlzQualiTool
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         public int Round => Id / 100;
+        public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
+        public TimeSpan Time { get; set; }
 
-        public DateTime Time { get; set; }
-
+        public int TimeSlot { get; set; }
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public int GoalsReceived(Team team)

@@ -61,6 +61,15 @@ namespace JlzQualiTool {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Platz {0}.
+        /// </summary>
+        public static string Court {
+            get {
+                return ResourceManager.GetString("Court", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Phase 1 abschliessen.
         /// </summary>
         public static string FinishPhaseOne {

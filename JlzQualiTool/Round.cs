@@ -65,17 +65,13 @@ namespace JlzQualiTool
         {
             var numberOfMatches = this.Matchups.Count;
 
-            var @base = Number * 100;
+            var @base = Number * 10;
             var gameNo = @base + numberOfMatches + 1;
-            var time = DateTime.Now;
-
-            Log.Info($" > {gameNo} @ {time.ToString("HH:mm")}: {home.Name} - {away.Name}");
 
             var matchup = new Matchup()
             {
                 Away = away,
                 Home = home,
-                Time = time,
                 Id = gameNo
             };
 

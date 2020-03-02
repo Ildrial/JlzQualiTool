@@ -87,15 +87,17 @@ namespace JlzQualiTool
                 m => new RankingSnapshot(m, new List<int>())));
 
             // TODO use correct pairings
-            Rounds.Add(new Round(5, new KoStrategy(), Rounds[3],
+            Rounds.Add(new Round(5, new RankingStrategy(round4Pairings), Rounds[3],
                 m => new RankingSnapshot(m, new List<int>())));
         }
 
         public void LoadData()
         {
             // TODO correct one?
-            var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = Settings.SavePath;
+            var dialog = new OpenFileDialog
+            {
+                InitialDirectory = Settings.SavePath
+            };
 
             var showDialog = dialog.ShowDialog();
 
@@ -123,6 +125,9 @@ namespace JlzQualiTool
                 Team team = Team.FromLine(e.Current);
                 this.Teams.Add(team);
             }
+
+            // TODO right place to do that?
+            Settings.TotalTeams = Teams.Count();
 
             Log.Info($" - {Teams.Count} teams loaded.");
 
