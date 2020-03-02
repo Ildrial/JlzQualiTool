@@ -1,7 +1,6 @@
 ﻿using log4net;
 using System;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 
 namespace JlzQualiTool
 {
@@ -11,7 +10,6 @@ namespace JlzQualiTool
         private Team away = Team.Tbd;
         private Team home = Team.Tbd;
 
-        [IgnoreDataMember]
         public Team Away
         {
             get
@@ -20,18 +18,14 @@ namespace JlzQualiTool
             }
             set
             {
-                AwayId = value == null ? -1 : value.Id;
                 this.away = value ?? Team.Tbd;
             }
         }
 
-        [DataMember(Order = 4)]
         public int? AwayGoal { get; set; }
 
-        [DataMember(Order = 3)]
         public int AwayId { get; set; }
 
-        [IgnoreDataMember]
         public Team Home
         {
             get
@@ -40,37 +34,29 @@ namespace JlzQualiTool
             }
             set
             {
-                HomeId = value == null ? -1 : value.Id;
                 this.home = value ?? Team.Tbd;
             }
         }
 
-        [DataMember(Order = 2)]
         public int? HomeGoal { get; set; }
 
-        [DataMember(Order = 1)]
         public int HomeId { get; set; }
 
-        [DataMember(Order = 0)]
         public int Id { get; set; }
 
         public bool IsFixed => Home != null && Away != null;
 
         // TODO derive from home/away goals
-        [DataMember(Order = 5)]
         public bool IsPlayed { get; private set; }
 
         public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
 
-        [IgnoreDataMember]
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         public int Round => Id / 100;
 
-        [IgnoreDataMember]
         public DateTime Time { get; set; }
 
-        [IgnoreDataMember]
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public int GoalsReceived(Team team)

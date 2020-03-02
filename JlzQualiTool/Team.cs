@@ -4,9 +4,7 @@ namespace JlzQualiTool
 // TODO rename class
 {
     using System.ComponentModel;
-    using System.Runtime.Serialization;
 
-    [DataContract]
     public class Team : INotifyPropertyChanged
     {
         public static Team Tbd = new Team()
@@ -29,15 +27,10 @@ namespace JlzQualiTool
 
         public int GoalsScored { get; set; }
 
-        [DataMember]
-        public int Id { get; set; }
-
         public int Matches { get; set; }
 
-        [DataMember]
         public string? Name { get; set; }
 
-        [DataMember]
         public int Points { get; set; }
 
         public int PreSeasonPonits { get; set; }

@@ -122,8 +122,6 @@ namespace JlzQualiTool
                 }
                 Team team = Team.FromLine(e.Current);
                 this.Teams.Add(team);
-                // TODO improve ID behavior
-                team.Id = Teams.Count;
             }
 
             Log.Info($" - {Teams.Count} teams loaded.");
@@ -278,25 +276,6 @@ namespace JlzQualiTool
         {
             Log.Info("Clearing scores...");
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
-        }
-
-        [Obsolete("Saving not done via serializing anymore.")]
-        private void SaveBySerializing()
-        {
-            var knownTypes = new Type[] { typeof(Team), typeof(Round) };
-
-            var ms = new MemoryStream();
-            var ser = new DataContractJsonSerializer(typeof(ViewModel), knownTypes);
-            ser.WriteObject(ms, this);
-            byte[] json = ms.ToArray();
-            ms.Close();
-
-            if (!Directory.Exists(Settings.SavePath))
-            {
-                Directory.CreateDirectory(Settings.SavePath);
-            }
-
-            File.WriteAllText(Path.Combine(Settings.SavePath, $"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.json"), Encoding.UTF8.GetString(json, 0, json.Length));
         }
 
         private void UpdateRankings()
