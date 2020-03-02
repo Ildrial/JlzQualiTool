@@ -5,3 +5,4 @@
 /.vs/JlzQualiTool
 /JlzQualiTool/bin/Debug/**
 /JlzQualiTool/obj/**
+/JlzQualiTool/qualidata/
