@@ -283,8 +283,11 @@ namespace JlzQualiTool
             // No ranking for round 1
             for (int i = 1; i < Rounds.Count; i++)
             {
-                Log.Info($"Updating ranking for round {i}.");
-                Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups));
+                var next = i + 1;
+                if ((next == Rounds.Count && Rounds[i].HasStarted) || (Rounds[i].HasStarted && !Rounds[next].HasStarted))
+                {
+                    Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups));
+                }
             }
         }
 

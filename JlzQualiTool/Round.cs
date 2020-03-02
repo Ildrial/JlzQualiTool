@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace JlzQualiTool
@@ -28,12 +29,15 @@ namespace JlzQualiTool
                 Strategy.CreateMatchups(this);
             }
 
-            Ranking = RankingSnapshot.None;
+            ranking = RankingSnapshot.None;
         }
 
         private Round() : this(0, NoStrategy.Get, Zero, x => { return RankingSnapshot.None; })
         {
         }
+
+        public bool HasStarted => !Matchups.All(m => !m.IsPlayed);
+        public bool IsComplete => Matchups.All(m => m.IsPlayed);
 
         [DataMember(Order = 1)]
         public ObservableCollection<Matchup> Matchups { get; } = new ObservableCollection<Matchup>();

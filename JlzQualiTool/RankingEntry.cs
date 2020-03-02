@@ -17,7 +17,7 @@ namespace JlzQualiTool
             GoalsScored = goalsScored;
             GoalsReceived = goalsReceived;
             IsInversed = isInversed;
-            // TODO improve random number: currently it is changed every update and may change predictions!
+            // TODO improve random number: currently it is changed every update and may change predictions! not persistent
             Chance = Randomizer.Next(1000000);
         }
 

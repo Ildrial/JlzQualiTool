@@ -17,7 +17,7 @@ namespace JlzQualiTool
 
         public RankingSnapshot(IEnumerable<Matchup> matchups, List<int> pointsWithInversedOrder)
         {
-            List<RankingEntry> rankingEntires = new List<RankingEntry>();
+            List<RankingEntry> rankingEntries = new List<RankingEntry>();
 
             var teams = matchups.SelectMany(x => new List<Team> { x.Away, x.Home }).Distinct();
             foreach (var team in teams)
@@ -30,14 +30,15 @@ namespace JlzQualiTool
                 var goalsScored = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsScored(team));
                 var goalsReceived = matchups.Where(m => m.WithTeam(team)).Sum(x => x.GoalsReceived(team));
                 var rankingEntry = new RankingEntry(team, gamesPlayed, points, goalsScored, goalsReceived, pointsWithInversedOrder.Contains(points));
-                rankingEntires.Add(rankingEntry);
+                rankingEntries.Add(rankingEntry);
             }
 
-            rankingEntires = rankingEntires.OrderByDescending(e => e.Position).ToList();
+            rankingEntries = rankingEntries.OrderByDescending(e => e.Position).ToList();
 
-            foreach (var entry in rankingEntires)
+            for (int i = 0; i < rankingEntries.Count; i++)
             {
-                Log.Info($" - 1. {entry.Team.Name}: {entry.GamesPlayed}, {entry.Points}, {entry.GoalsScored} : {entry.GoalsReceived} ({entry.Position}).");
+                RankingEntry entry = rankingEntries[i];
+                Log.Info($" - {i + 1}. {entry.Team.Name}: {entry.GamesPlayed}, {entry.Points}, {entry.GoalsScored} : {entry.GoalsReceived} ({entry.Position}).");
                 this.Add(entry);
             }
 
