@@ -7,36 +7,14 @@ namespace JlzQualiTool
     public class Matchup : INotifyPropertyChanged
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
-        private Team away = Team.Tbd;
-        private Team home = Team.Tbd;
 
-        public Team Away
-        {
-            get
-            {
-                return this.away;
-            }
-            set
-            {
-                this.away = value ?? Team.Tbd;
-            }
-        }
+        public Team Away { get; set; } = Team.Tbd;
 
         public int? AwayGoal { get; set; }
 
         public int AwayId { get; set; }
 
-        public Team Home
-        {
-            get
-            {
-                return this.home;
-            }
-            set
-            {
-                this.home = value ?? Team.Tbd;
-            }
-        }
+        public Team Home { get; set; } = Team.Tbd;
 
         public int? HomeGoal { get; set; }
 
