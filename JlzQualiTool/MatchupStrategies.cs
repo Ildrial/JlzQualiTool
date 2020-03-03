@@ -2,9 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace JlzQualiTool
 {
+    public enum MatchupMode
+    {
+        [XmlEnum(Name = "Ordered")]
+        Ordered,
+
+        [XmlEnum(Name = "Ko")]
+        Ko,
+
+        [XmlEnum(Name = "RankingBased")]
+        RankingBased
+    }
+
     public interface IMatchupStrategy
     {
         void CreateMatchups(Round round);

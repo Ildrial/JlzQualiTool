@@ -17,9 +17,9 @@ namespace JlzQualiTool
         public string Home { get; set; } = "";
 
         [XmlAttribute]
-        public byte Id { get; set; }
+        public int Id { get; set; }
 
         [XmlAttribute]
-        public byte Order { get; set; }
+        public int Order { get; set; }
     }
 }

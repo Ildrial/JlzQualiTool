@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration TotalTeams="16" Courts="2">
 	<RoundInfos>
-		<RoundInfo Number="1" Mode="0"/>
-		<RoundInfo Number="2" Mode="1"/>
-		<RoundInfo Number="3" Mode="2"/>
-		<RoundInfo Number="4" Mode="2"/>
-		<RoundInfo Number="5" Mode="2"/>
+		<RoundInfo Number="1" Mode="Ordered"/>
+		<RoundInfo Number="2" Mode="Ko"/>
+		<RoundInfo Number="3" Mode="RankingBased"/>
+		<RoundInfo Number="4" Mode="RankingBased"/>
+		<RoundInfo Number="5" Mode="RankingBased"/>
 	</RoundInfos>
 	<MatchupInfos>
 		<MatchupInfo Id="11" Home="A" Away="B" Order="1"/>

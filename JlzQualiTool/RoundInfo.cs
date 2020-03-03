@@ -11,7 +11,7 @@ namespace JlzQualiTool
     public class RoundInfo
     {
         [XmlAttribute]
-        public int Mode { get; set; }
+        public MatchupMode Mode { get; set; }
 
         [XmlAttribute]
         public int Number { get; set; }
