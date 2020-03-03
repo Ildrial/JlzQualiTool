@@ -12,10 +12,7 @@ namespace JlzQualiTool
 
     public class InitialOrderStrategy : MatchupStrategyBase
     {
-        public InitialOrderStrategy(List<Team> teams)
-        {
-            Teams = teams;
-        }
+        public InitialOrderStrategy(List<Team> teams) => Teams = teams;
 
         private List<Team> Teams { get; }
 

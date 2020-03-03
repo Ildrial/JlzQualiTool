@@ -14,6 +14,7 @@ namespace JlzQualiTool
     using System.Runtime.Serialization.Json;
     using System.Windows;
     using System.Windows.Threading;
+    using System.Xml.Serialization;
 
     [DataContract]
     public class ViewModel //: INotifyPropertyChanged
@@ -28,19 +29,27 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
+            Configuration = LoadConfig(16);
+
             LoadSampleData();
             SimulateResults();
         }
 
+        public Configuration Configuration { get; }
+
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
+
         public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
+
         public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
 
         [DataMember]
         public ObservableCollection<Round> Rounds { get; }
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
+
         public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
+
         public ICommand SimulateResultsCommand => new CommandHandler(this.SimulateResults, true);
 
         [DataMember]
@@ -281,6 +290,18 @@ namespace JlzQualiTool
         {
             Log.Info("Clearing scores...");
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
+        }
+
+        private Configuration LoadConfig(int totalTeams)
+        {
+            var configFile = @$"../../../config/config{totalTeams}.xml";
+
+            XmlSerializer serializer = new XmlSerializer(typeof(Configuration));
+
+            StreamReader reader = new StreamReader(configFile, Encoding.UTF8);
+            var configuration = (Configuration)serializer.Deserialize(reader);
+            reader.Close();
+            return configuration;
         }
 
         private void UpdateRankings()
