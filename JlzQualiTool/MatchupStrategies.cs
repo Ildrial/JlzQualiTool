@@ -61,7 +61,7 @@ namespace JlzQualiTool
 
                      Log.Debug($"Match {homeRefMatchup.Id} played. Updating Home team for game {matchup.Id} ({matchup.Home.Name}).");
 
-                     homeRefMatchup.Publish();
+                     matchup.Publish();
                  };
                 awayRefMatchup.OnMatchPlayedEvent += (o, e) =>
                 {
@@ -69,7 +69,7 @@ namespace JlzQualiTool
 
                     Log.Debug($"Match {awayRefMatchup.Id} played. Updating Away team for game {matchup.Id} ({matchup.Away.Name}).");
 
-                    awayRefMatchup.Publish();
+                    matchup.Publish();
                 };
             }
         }
