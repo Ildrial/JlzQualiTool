@@ -14,26 +14,24 @@ namespace JlzQualiTool
         public static Round Zero = new Round();
 
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
-        private RankingSnapshot ranking;
+        private RankingSnapshot ranking = RankingSnapshot.None;
 
-        public Round(int number, IMatchupStrategy strategy, Round previousRound, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
+        public Round(RoundInfo roundInfo, ViewModel viewModel, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
         {
-            this.Number = number;
-            this.Strategy = strategy;
-            this.PreviousRound = previousRound;
+            this.Number = roundInfo.Number;
+            this.Strategy = StrategyFactory.GetStrategy(roundInfo, viewModel);
+            this.PreviousRound = Number - 2 < 0 ? Zero : viewModel.Rounds[Number - 2];
             this.RankingOrder = rankingOrder;
 
-            // TODO correct place to do that?
-            if (strategy != NoStrategy.Get)
-            {
-                Strategy.CreateMatchups(this);
-            }
-
-            ranking = RankingSnapshot.None;
+            Strategy.CreateMatchups(this);
         }
 
-        private Round() : this(0, NoStrategy.Get, Zero, x => { return RankingSnapshot.None; })
+        private Round()
         {
+            Number = 0;
+            Strategy = NoStrategy.Get;
+            PreviousRound = Zero;
+            RankingOrder = x => { return RankingSnapshot.None; };
         }
 
         public bool HasStarted => !Matchups.All(m => !m.IsPlayed);
@@ -60,25 +58,6 @@ namespace JlzQualiTool
         private Func<IEnumerable<Matchup>, RankingSnapshot> RankingOrder { get; }
 
         private IMatchupStrategy Strategy { get; }
-
-        public Matchup CreateAndAddMatchup(Team home, Team away)
-        {
-            var numberOfMatches = this.Matchups.Count;
-
-            var @base = Number * 10;
-            var gameNo = @base + numberOfMatches + 1;
-
-            var matchup = new Matchup()
-            {
-                Away = away,
-                Home = home,
-                Id = gameNo
-            };
-
-            this.Matchups.Add(matchup);
-
-            return matchup;
-        }
 
         public void RaiseOnRankingUpdatedEvent()
         {

@@ -66,38 +66,13 @@ namespace JlzQualiTool
 
         public void InitializeMatchups()
         {
-            Rounds.Add(new Round(1, new InitialOrderStrategy(Teams.ToList()), Round.Zero, m => RankingSnapshot.None));
-            Rounds.Add(new Round(2, new KoStrategy(), Rounds[0],
-                m => new RankingSnapshot(m, new List<int> { 1, 2, 3 })));
-            var round3Pairings = new List<Tuple<int, int>>() {
-                new Tuple<int, int>(1, 4),
-                new Tuple<int, int>(2, 3),
-                new Tuple<int, int>(5, 12),
-                new Tuple<int, int>(6, 11),
-                new Tuple<int, int>(7, 10),
-                new Tuple<int, int>(8, 9),
-                new Tuple<int, int>(13, 16),
-                new Tuple<int, int>(14, 15)
-            };
-            Rounds.Add(new Round(3, new RankingStrategy(round3Pairings), Rounds[1],
-                m => new RankingSnapshot(m, new List<int> { 3, 5 })));
-
-            var round4Pairings = new List<Tuple<int, int>>() {
-                new Tuple<int, int>(1, 2),
-                new Tuple<int, int>(3, 8),
-                new Tuple<int, int>(4, 7),
-                new Tuple<int, int>(5, 6),
-                new Tuple<int, int>(9, 14),
-                new Tuple<int, int>(10, 13),
-                new Tuple<int, int>(11, 12),
-                new Tuple<int, int>(15, 16)
-            };
-            Rounds.Add(new Round(4, new RankingStrategy(round4Pairings), Rounds[2],
-                m => new RankingSnapshot(m, new List<int>())));
-
-            // TODO use correct pairings
-            Rounds.Add(new Round(5, new RankingStrategy(round4Pairings), Rounds[3],
-                m => new RankingSnapshot(m, new List<int>())));
+            // TODO ideally avoid passing view model directly.
+            // TODO put ranking order into configuration
+            Rounds.Add(new Round(Configuration.RoundInfos[0], this, m => RankingSnapshot.None));
+            Rounds.Add(new Round(Configuration.RoundInfos[1], this, m => new RankingSnapshot(m, new List<int> { 1, 2, 3 })));
+            Rounds.Add(new Round(Configuration.RoundInfos[2], this, m => new RankingSnapshot(m, new List<int> { 3, 5 })));
+            Rounds.Add(new Round(Configuration.RoundInfos[3], this, m => new RankingSnapshot(m, new List<int>())));
+            Rounds.Add(new Round(Configuration.RoundInfos[4], this, m => new RankingSnapshot(m, new List<int>())));
         }
 
         public void LoadData()
@@ -312,7 +287,7 @@ namespace JlzQualiTool
                 var next = i + 1;
                 if ((next == Rounds.Count && Rounds[i].HasStarted) || (Rounds[i].HasStarted && !Rounds[next].HasStarted))
                 {
-                    Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups));
+                    Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups.Where(m => m.IsPlayed)));
                 }
             }
         }

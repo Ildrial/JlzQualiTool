@@ -8,14 +8,31 @@ namespace JlzQualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
 
-        public Team Away { get; set; } = Team.Tbd;
+        public Matchup()
+        {
+        }
+
+        public Matchup(MatchupInfo info)
+        {
+            this.Home = new Team(info.HomeTeamName);
+            this.Away = new Team(info.AwayTeamName);
+            this.Id = info.Id;
+            // TODO use start time from configuration
+            this.Time = info.Time;
+            this.Court = info.Court;
+            // TODO log creation
+
+            Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
+        }
+
+        public Team Away { get; set; } = new Team("??");
 
         public int? AwayGoal { get; set; }
 
         public int AwayId { get; set; }
 
         public int Court { get; set; }
-        public Team Home { get; set; } = Team.Tbd;
+        public Team Home { get; set; } = new Team("??");
 
         public int? HomeGoal { get; set; }
 
@@ -36,7 +53,6 @@ namespace JlzQualiTool
         public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
         public TimeSpan Time { get; set; }
 
-        public int TimeSlot { get; set; }
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public int GoalsReceived(Team team)
@@ -64,6 +80,21 @@ namespace JlzQualiTool
                 : IsTie
                     ? 1
                     : Winner == team ? 2 : 0;
+        }
+
+        public Team GetWinnerOrLoser(char key)
+        {
+            switch (key)
+            {
+                case 'W':
+                    return Winner;
+
+                case 'L':
+                    return Loser;
+
+                default:
+                    throw new InvalidOperationException("Must pass 'W' or 'L' as argument.");
+            }
         }
 
         public void Publish()

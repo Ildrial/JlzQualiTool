@@ -7,14 +7,9 @@ namespace JlzQualiTool
 
     public class Team : INotifyPropertyChanged
     {
-        public static Team Tbd = new Team()
+        public Team(string name)
         {
-            Name = "TBD"
-        };
-
-        public Team(string dummyName)
-        {
-            Name = dummyName;
+            Name = name;
         }
 
         public Team()
