@@ -8,19 +8,18 @@ namespace JlzQualiTool
 {
     public interface IMatchupStrategy
     {
-        // TODO put round into constructor?
-        void CreateMatchups(Round round);
+        void CreateMatchups();
     }
 
     public class InitialOrderStrategy : MatchupStrategyBase
     {
-        public InitialOrderStrategy(RoundInfo roundInfo, List<Team> teams) : base(roundInfo) => Teams = teams;
+        public InitialOrderStrategy(Round round, List<Team> teams) : base(round) => Teams = teams;
 
         private List<Team> Teams { get; }
 
-        protected override void CreateMatchupsInternal(Round round)
+        protected override void CreateMatchupsInternal()
         {
-            foreach (var matchupInfo in RoundInfo.MatchupInfos)
+            foreach (var matchupInfo in Round.Info.MatchupInfos)
             {
                 // TODO better resolution of Teams and matchups
                 var matchup = new Matchup(matchupInfo)
@@ -28,25 +27,25 @@ namespace JlzQualiTool
                     Home = Teams[int.Parse(matchupInfo.Home) - 1],
                     Away = Teams[int.Parse(matchupInfo.Away) - 1]
                 };
-                round.Matchups.Add(matchup);
+                Round.Matchups.Add(matchup);
             }
         }
     }
 
     public class KoStrategy : MatchupStrategyBase
     {
-        public KoStrategy(RoundInfo roundInfo) : base(roundInfo)
+        public KoStrategy(Round round) : base(round)
         {
         }
 
-        protected override void CreateMatchupsInternal(Round round)
+        protected override void CreateMatchupsInternal()
         {
-            var previousMatchups = round.PreviousRound.Matchups;
+            var previousMatchups = Round.PreviousRound.Matchups;
 
-            foreach (var matchupInfo in RoundInfo.MatchupInfos)
+            foreach (var matchupInfo in Round.Info.MatchupInfos)
             {
                 var matchup = new Matchup(matchupInfo);
-                round.Matchups.Add(matchup);
+                Round.Matchups.Add(matchup);
 
                 // TODO improve handling by maybe use specialized matchup info classes
                 var homeGameIdRef = int.Parse(matchupInfo.Home.Substring(1));
@@ -79,31 +78,31 @@ namespace JlzQualiTool
     {
         protected static ILog Log = log4net.LogManager.GetLogger(typeof(MatchupStrategyBase));
 
-        public MatchupStrategyBase(RoundInfo roundInfo)
+        public MatchupStrategyBase(Round round)
         {
-            this.RoundInfo = roundInfo;
+            this.Round = round;
         }
 
-        protected RoundInfo RoundInfo { get; }
+        protected Round Round { get; }
 
-        public void CreateMatchups(Round round)
+        public void CreateMatchups()
         {
-            Log.Info($"Creating matchups for round '{round.Number}':");
-            CreateMatchupsInternal(round);
+            Log.Info($"Creating matchups for round '{Round.Number}':");
+            CreateMatchupsInternal();
         }
 
-        protected abstract void CreateMatchupsInternal(Round round);
+        protected abstract void CreateMatchupsInternal();
     }
 
     public class NoStrategy : MatchupStrategyBase
     {
-        public static IMatchupStrategy Get = new NoStrategy(new RoundInfo());
+        public static IMatchupStrategy Get = new NoStrategy(Round.Zero);
 
-        private NoStrategy(RoundInfo info) : base(info)
+        private NoStrategy(Round round) : base(round)
         {
         }
 
-        protected override void CreateMatchupsInternal(Round round)
+        protected override void CreateMatchupsInternal()
         {
             throw new System.NotImplementedException();
         }
@@ -111,19 +110,19 @@ namespace JlzQualiTool
 
     public class RankingStrategy : MatchupStrategyBase
     {
-        public RankingStrategy(RoundInfo roundInfo) : base(roundInfo)
+        public RankingStrategy(Round round) : base(round)
         {
         }
 
-        protected override void CreateMatchupsInternal(Round round)
+        protected override void CreateMatchupsInternal()
         {
-            foreach (var matchupInfo in RoundInfo.MatchupInfos)
+            foreach (var matchupInfo in Round.Info.MatchupInfos)
             {
                 var matchup = new Matchup(matchupInfo);
-                round.Matchups.Add(matchup);
+                Round.Matchups.Add(matchup);
 
                 // TODO put in methods and use sender and event args
-                round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchup(round.PreviousRound, matchup);
+                Round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchup(Round.PreviousRound, matchup);
             }
         }
 

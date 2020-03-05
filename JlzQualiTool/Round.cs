@@ -19,11 +19,12 @@ namespace JlzQualiTool
         public Round(RoundInfo roundInfo, ViewModel viewModel, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
         {
             this.Number = roundInfo.Number;
-            this.Strategy = StrategyFactory.GetStrategy(roundInfo, viewModel);
             this.PreviousRound = Number - 2 < 0 ? Zero : viewModel.Rounds[Number - 2];
             this.RankingOrder = rankingOrder;
+            this.Info = roundInfo;
 
-            Strategy.CreateMatchups(this);
+            this.Strategy = StrategyFactory.GetStrategy(this, viewModel);
+            Strategy.CreateMatchups();
         }
 
         private Round()
@@ -35,6 +36,7 @@ namespace JlzQualiTool
         }
 
         public bool HasStarted => !Matchups.All(m => !m.IsPlayed);
+        public RoundInfo Info { get; } = new RoundInfo();
         public bool IsComplete => Matchups.All(m => m.IsPlayed);
 
         [DataMember(Order = 1)]

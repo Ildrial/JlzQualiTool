@@ -8,14 +8,14 @@ namespace JlzQualiTool
 {
     public class StrategyFactory
     {
-        public static IMatchupStrategy GetStrategy(RoundInfo roundInfo, ViewModel viewModel)
+        public static IMatchupStrategy GetStrategy(Round round, ViewModel viewModel)
         {
-            return roundInfo.Type switch
+            return round.Info.Type switch
             {
-                MatchupType.Ordered => new InitialOrderStrategy(roundInfo, viewModel.Teams.ToList()),
-                MatchupType.Ko => new KoStrategy(roundInfo),
-                MatchupType.RankingBased => new RankingStrategy(roundInfo),
-                _ => throw new InvalidOperationException($"Unknown matchup type '{roundInfo.Type}'."),
+                MatchupType.Ordered => new InitialOrderStrategy(round, viewModel.Teams.ToList()),
+                MatchupType.Ko => new KoStrategy(round),
+                MatchupType.RankingBased => new RankingStrategy(round),
+                _ => throw new InvalidOperationException($"Unknown matchup type '{round.Info.Type}'."),
             };
         }
     }

@@ -29,13 +29,11 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
-            Configuration = LoadConfig(16);
-
             LoadSampleData();
-            SimulateResults();
+            //SimulateResults();
         }
 
-        public Configuration Configuration { get; }
+        public Configuration Configuration { get; set; }
 
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
 
@@ -122,6 +120,8 @@ namespace JlzQualiTool
                 orderedTeams[i].Seed = i + 1;
             }
 
+            Configuration = LoadConfig(Teams.Count());
+
             this.Rounds.Clear();
             this.InitializeMatchups();
 
@@ -153,6 +153,8 @@ namespace JlzQualiTool
             }
 
             Log.Info($" - {matchupCounter} matchups loaded.");
+
+            // TODO consistency check!
         }
 
         public void LoadSampleData()
