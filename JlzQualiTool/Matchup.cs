@@ -43,7 +43,7 @@ namespace JlzQualiTool
 
         public int Id { get; set; }
 
-        public bool IsFixed => Home != null && Away != null;
+        public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
 
         // TODO derive from home/away goals
         public bool IsPlayed { get; private set; }

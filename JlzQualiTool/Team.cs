@@ -7,9 +7,10 @@ namespace JlzQualiTool
 
     public class Team : INotifyPropertyChanged
     {
-        public Team(string name)
+        public Team(string name, bool isPlaceHolder = true)
         {
             Name = name;
+            IsPlaceHolder = isPlaceHolder;
         }
 
         public Team()
@@ -22,9 +23,11 @@ namespace JlzQualiTool
 
         public int GoalsScored { get; set; }
 
+        public bool IsPlaceHolder { get; } = false;
+
         public int Matches { get; set; }
 
-        public string? Name { get; set; }
+        public string Name { get; set; } = "";
 
         public int Points { get; set; }
 
@@ -55,6 +58,11 @@ namespace JlzQualiTool
             this.OnPropertyChanged("GoalsScored");
             this.OnPropertyChanged("GoalsReceived");
             this.OnPropertyChanged("Difference");
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
         }
 
         internal void ClearRankingInfo()

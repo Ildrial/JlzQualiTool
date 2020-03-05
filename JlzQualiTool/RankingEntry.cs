@@ -32,6 +32,7 @@ namespace JlzQualiTool
         {
             get
             {
+                // TODO use GroupBy and Join for ordering instead.
                 var modifiedDifference = IsInversed
                     ? (1000 - Difference)
                     : 1000 + Difference;

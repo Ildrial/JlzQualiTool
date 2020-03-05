@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Xml.Serialization;
 
@@ -120,13 +121,25 @@ namespace JlzQualiTool
             {
                 var matchup = new Matchup(matchupInfo);
                 Round.Matchups.Add(matchup);
-
-                // TODO put in methods and use sender and event args
-                Round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchup(Round.PreviousRound, matchup);
             }
+            Round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchups();
         }
 
-        private void UpdateMatchup(Round previousRound, Matchup matchup)
+        private bool IsMatchupValid(Matchup matchup)
+        {
+            // Must not play agains each other twice
+            return true;
+        }
+
+        private bool SelectNextMatchup(List<Matchup> remainingMatchups, out Matchup matchup)
+        {
+            matchup = remainingMatchups.First();
+            // TODO select first available instead of first always (i.e. backtracking)
+
+            return IsMatchupValid(matchup);
+        }
+
+        private void UpdateMatchup(Matchup matchup)
         {
             var homeRank = string.IsNullOrEmpty(matchup.Info.Home) ? 0 : int.Parse(matchup.Info.Home);
             var awayRank = string.IsNullOrEmpty(matchup.Info.Away) ? 0 : int.Parse(matchup.Info.Away);
@@ -134,12 +147,10 @@ namespace JlzQualiTool
             if (homeRank != 0 && awayRank != 0)
             {
                 // TODO parts of table must be fixed before... (idea: fixed flag on ranking entry?)
-                if (previousRound.Matchups.All(m => m.IsPlayed))
+                if (Round.PreviousRound.Matchups.All(m => m.IsPlayed))
                 {
-                    matchup.Home = previousRound.Ranking[homeRank - 1].Team;
-                    matchup.Away = previousRound.Ranking[awayRank - 1].Team;
-                    // TODO adjust log text
-                    Log.Debug($"Complete ranking of round {previousRound.Number} updated. Updating game {matchup.Id}: {matchup.Home.Name} - {matchup.Away.Name}.");
+                    matchup.Home = Round.PreviousRound.Ranking[homeRank - 1].Team;
+                    matchup.Away = Round.PreviousRound.Ranking[awayRank - 1].Team;
                 }
             }
             else
@@ -148,6 +159,47 @@ namespace JlzQualiTool
             }
 
             matchup.Publish();
+        }
+
+        private void UpdateMatchups()
+        {
+            // TODO adjust log text once not complete ranking is required
+            Log.Info($"Complete ranking of round {Round.PreviousRound.Number} updated. Updating matchups for round {Round.Number}");
+            if (!UpdateMatchups(Round.Matchups.ToList(), new List<Matchup>()))
+            {
+                Log.Fatal($"Update of matchups for round {Round.Number} failed!");
+                throw new InvalidOperationException($"Update of matchups for round {Round.Number} failed!");
+            }
+        }
+
+        private bool UpdateMatchups(List<Matchup> remainingMatchups, List<Matchup> fixedMatchups)
+        {
+            Contract.Assert(remainingMatchups.Count() + fixedMatchups.Count() == Round.Info.MatchupInfos.Count(), $"{remainingMatchups.Count()} + {fixedMatchups.Count()} != {Round.Info.MatchupInfos.Count()}");
+            var indent = new string(' ', fixedMatchups.Count() + 2);
+            Log.Info($"{indent}- UpdateMatchups recursive (depth: {fixedMatchups.Count()})");
+            if (remainingMatchups.Count() == 0)
+            {
+                return true;
+            }
+
+            while (SelectNextMatchup(remainingMatchups, out Matchup matchup))
+            {
+                this.UpdateMatchup(matchup);
+                Log.Info($"{indent} > Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
+                if (!remainingMatchups.Remove(matchup))
+                {
+                    throw new InvalidOperationException("Matchup must be removed, dammit!");
+                }
+
+                fixedMatchups.Add(matchup);
+
+                if (UpdateMatchups(remainingMatchups, fixedMatchups))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

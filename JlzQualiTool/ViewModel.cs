@@ -146,10 +146,20 @@ namespace JlzQualiTool
                 matchup.HomeGoal = int.Parse(score[0]);
                 matchup.AwayGoal = int.Parse(score[1]);
 
-                this.SaveScore(matchup);
+                this.SaveScore(matchup, false);
                 matchup.Publish();
 
                 matchupCounter++;
+
+                if (matchupCounter % (Teams.Count() / 2) == 0)
+                {
+                    UpdateScores();
+                }
+            }
+
+            if (matchupCounter % (Teams.Count() / 2) != 0)
+            {
+                UpdateScores();
             }
 
             Log.Info($" - {matchupCounter} matchups loaded.");
@@ -188,11 +198,19 @@ namespace JlzQualiTool
 
         public void SaveScore(Matchup matchup)
         {
+            this.SaveScore(matchup, true);
+        }
+
+        public void SaveScore(Matchup matchup, bool updateScores)
+        {
             Log.Debug($"Updating score ({matchup.Id}): {matchup.Home.Name} - {matchup.Away.Name} {matchup.HomeGoal} : {matchup.AwayGoal}");
 
             matchup.RaiseOnMatchPlayedEvent();
 
-            this.UpdateScores();
+            if (updateScores)
+            {
+                this.UpdateScores();
+            }
         }
 
         public void SimulateResults()
@@ -207,9 +225,11 @@ namespace JlzQualiTool
                     matchup.HomeGoal = random.Next(0, 10);
                     matchup.AwayGoal = random.Next(0, 10);
 
-                    this.SaveScore(matchup);
+                    this.SaveScore(matchup, false);
                     matchup.Publish();
                 }
+
+                UpdateScores();
             }
         }
 
