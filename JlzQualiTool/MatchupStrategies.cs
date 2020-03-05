@@ -65,7 +65,7 @@ namespace JlzQualiTool
                  };
                 awayRefMatchup.OnMatchPlayedEvent += (o, e) =>
                 {
-                    matchup.Away = awayRefMatchup.GetWinnerOrLoser(matchupInfo.Home.First()) ?? matchup.Away;
+                    matchup.Away = awayRefMatchup.GetWinnerOrLoser(matchupInfo.Away.First()) ?? matchup.Away;
 
                     Log.Debug($"Match {awayRefMatchup.Id} played. Updating Away team for game {matchup.Id} ({matchup.Away.Name}).");
 
@@ -119,39 +119,36 @@ namespace JlzQualiTool
         {
             foreach (var matchupInfo in RoundInfo.MatchupInfos)
             {
-                var homeRank = string.IsNullOrEmpty(matchupInfo.Home) ? 0 : int.Parse(matchupInfo.Home);
-                var awayRank = string.IsNullOrEmpty(matchupInfo.Away) ? 0 : int.Parse(matchupInfo.Away);
-
                 var matchup = new Matchup(matchupInfo);
                 round.Matchups.Add(matchup);
 
                 // TODO put in methods and use sender and event args
-                round.PreviousRound.OnRankingUpdatedEvent += (o, e) =>
-                {
-                    // TODO handle rematches correctly
-                    if (o != null)
-                    {
-                        var round = (Round)o;
-                        if (round.Number != 4)
-                        {
-                            // TODO parts of table must be fixed before... (idea: fixed flag on ranking entry?)
-                            if (round.Matchups.All(m => m.IsPlayed))
-                            {
-                                matchup.Home = round.Ranking[homeRank - 1].Team;
-                                matchup.Away = round.Ranking[awayRank - 1].Team;
-                                // TODO adjust log text
-                                Log.Debug($"Complete ranking of round {round.Number} updated. Updating game {matchup.Id}: {matchup.Home.Name} - {matchup.Away.Name}.");
-                            }
-                        }
-                        else
-                        {
-                            // TODO implement round 5 logic without fixed places.
-                        }
-
-                        matchup.Publish();
-                    }
-                };
+                round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchup(round.PreviousRound, matchup);
             }
+        }
+
+        private void UpdateMatchup(Round previousRound, Matchup matchup)
+        {
+            var homeRank = string.IsNullOrEmpty(matchup.Info.Home) ? 0 : int.Parse(matchup.Info.Home);
+            var awayRank = string.IsNullOrEmpty(matchup.Info.Away) ? 0 : int.Parse(matchup.Info.Away);
+
+            if (homeRank != 0 && awayRank != 0)
+            {
+                // TODO parts of table must be fixed before... (idea: fixed flag on ranking entry?)
+                if (previousRound.Matchups.All(m => m.IsPlayed))
+                {
+                    matchup.Home = previousRound.Ranking[homeRank - 1].Team;
+                    matchup.Away = previousRound.Ranking[awayRank - 1].Team;
+                    // TODO adjust log text
+                    Log.Debug($"Complete ranking of round {previousRound.Number} updated. Updating game {matchup.Id}: {matchup.Home.Name} - {matchup.Away.Name}.");
+                }
+            }
+            else
+            {
+                // TODO implement round 5 logic without fixed places, i.e. rank = 0;
+            }
+
+            matchup.Publish();
         }
     }
 }

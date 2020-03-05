@@ -20,10 +20,13 @@ namespace JlzQualiTool
             // TODO use start time from configuration
             this.Time = info.Time;
             this.Court = info.Court;
+            this.Info = info;
             // TODO log creation
 
             Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
         }
+
+        public MatchupInfo Info { get; } = new MatchupInfo();
 
         public Team Away { get; set; } = new Team("??");
 
@@ -87,10 +90,10 @@ namespace JlzQualiTool
             switch (key)
             {
                 case 'W':
-                    return Winner;
+                    return Winner ?? new Team($"{key}{Id}");
 
                 case 'L':
-                    return Loser;
+                    return Loser ?? new Team($"{key}{Id}");
 
                 default:
                     throw new InvalidOperationException("Must pass 'W' or 'L' as argument.");
