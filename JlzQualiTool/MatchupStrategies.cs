@@ -165,6 +165,7 @@ namespace JlzQualiTool
         {
             // TODO adjust log text once not complete ranking is required
             Log.Info($"Complete ranking of round {Round.PreviousRound.Number} updated. Updating matchups for round {Round.Number}");
+
             if (!UpdateMatchups(Round.Matchups.ToList(), new List<Matchup>()))
             {
                 Log.Fatal($"Update of matchups for round {Round.Number} failed!");

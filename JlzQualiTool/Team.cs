@@ -3,10 +3,15 @@
 namespace JlzQualiTool
 // TODO rename class
 {
+    using log4net;
+    using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
 
     public class Team : INotifyPropertyChanged
     {
+        private static ILog Log = log4net.LogManager.GetLogger(typeof(Team));
+
         public Team(string name, bool isPlaceHolder = true)
         {
             Name = name;
@@ -18,26 +23,17 @@ namespace JlzQualiTool
         }
 
         public int Difference => this.GoalsScored - this.GoalsReceived;
-
         public int GoalsReceived { get; set; }
-
         public int GoalsScored { get; set; }
-
         public bool IsPlaceHolder { get; } = false;
-
         public int Matches { get; set; }
-
         public string Name { get; set; } = "";
-
         public int Points { get; set; }
-
         public int PreSeasonPonits { get; set; }
-
         public int Seed { get; set; }
-
         public int SelfAssessmentPoints { get; set; }
-
         public int TotalPoints => this.PreSeasonPonits + this.SelfAssessmentPoints;
+        private List<Team> Opponents { get; } = new List<Team>(5);
 
         public static Team FromLine(string line)
         {
@@ -49,6 +45,19 @@ namespace JlzQualiTool
                 PreSeasonPonits = ParseInt(cells[1]),
                 SelfAssessmentPoints = ParseInt(cells[2])
             };
+        }
+
+        public void AddOpponent(Team team)
+        {
+            if (Opponents.Contains(team))
+            {
+                Log.Fatal($"!!! Duplicate Matchup recorded: {this} - {team} !!!");
+                throw new InvalidOperationException($"{this} already played against {team}!");
+            }
+            else
+            {
+                Opponents.Add(team);
+            }
         }
 
         public void Publish()

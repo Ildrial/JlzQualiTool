@@ -78,13 +78,13 @@ namespace JlzQualiTool
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public event EventHandler OnRankingUpdatedEvent = new EventHandler((o, e) =>
+        public event EventHandler OnRankingUpdatedEvent = (o, e) =>
                         {
                             if (o != null)
                             {
                                 ((Round)o).OnPropertyChanged("Ranking");
                             }
-                        });
+                        };
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

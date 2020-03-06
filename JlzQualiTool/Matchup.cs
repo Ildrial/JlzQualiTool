@@ -8,10 +8,6 @@ namespace JlzQualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
 
-        public Matchup()
-        {
-        }
-
         public Matchup(MatchupInfo info)
         {
             this.Home = new Team(info.HomeTeamName);
@@ -23,26 +19,21 @@ namespace JlzQualiTool
             this.Info = info;
             // TODO log creation
 
+            OnMatchPlayedEvent += (o, e) => MatchPlayed();
+
             Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
         }
 
-        public MatchupInfo Info { get; } = new MatchupInfo();
-
-        public Team Away { get; set; } = new Team("??");
-
+        public Team Away { get; set; }
         public int? AwayGoal { get; set; }
-
         public int AwayId { get; set; }
-
         public int Court { get; set; }
-        public Team Home { get; set; } = new Team("??");
-
+        public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
+        public Team Home { get; set; }
         public int? HomeGoal { get; set; }
-
         public int HomeId { get; set; }
-
         public int Id { get; set; }
-
+        public MatchupInfo Info { get; } = new MatchupInfo();
         public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
 
         // TODO derive from home/away goals
@@ -53,10 +44,24 @@ namespace JlzQualiTool
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         public int Round => Id / 100;
-        public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
         public TimeSpan Time { get; set; }
 
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+
+        public Team GetWinnerOrLoser(char key)
+        {
+            switch (key)
+            {
+                case 'W':
+                    return Winner ?? new Team($"{key}{Id}");
+
+                case 'L':
+                    return Loser ?? new Team($"{key}{Id}");
+
+                default:
+                    throw new InvalidOperationException("Must pass 'W' or 'L' as argument.");
+            }
+        }
 
         public int GoalsReceived(Team team)
         {
@@ -85,21 +90,6 @@ namespace JlzQualiTool
                     : Winner == team ? 2 : 0;
         }
 
-        public Team GetWinnerOrLoser(char key)
-        {
-            switch (key)
-            {
-                case 'W':
-                    return Winner ?? new Team($"{key}{Id}");
-
-                case 'L':
-                    return Loser ?? new Team($"{key}{Id}");
-
-                default:
-                    throw new InvalidOperationException("Must pass 'W' or 'L' as argument.");
-            }
-        }
-
         public void Publish()
         {
             // TODO distinguish between publishing teams and goals
@@ -114,6 +104,11 @@ namespace JlzQualiTool
             OnMatchPlayedEvent?.Invoke(this, EventArgs.Empty);
         }
 
+        public override string ToString()
+        {
+            return $"{Id} ({Time}, {Court}: {Home} - {Away}\t {HomeGoal} : {AwayGoal}";
+        }
+
         public bool WithTeam(Team team)
         {
             return Away == team || Home == team;
@@ -124,13 +119,24 @@ namespace JlzQualiTool
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public event EventHandler OnMatchPlayedEvent = new EventHandler((o, e) =>
+        private void MatchPlayed()
         {
-            if (o != null)
+            // TODO maybe too late to set oponents after played? (a team may have two open matches)
+            // Therefore, Set IsFixed flag explicitly and react on event?
+            if (!IsPlayed)
             {
-                ((Matchup)o).IsPlayed = true;
+                this.SetOponents();
             }
-        });
+            this.IsPlayed = true;
+        }
+
+        private void SetOponents()
+        {
+            this.Home.AddOpponent(this.Away);
+            this.Away.AddOpponent(this.Home);
+        }
+
+        public event EventHandler OnMatchPlayedEvent;
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }
