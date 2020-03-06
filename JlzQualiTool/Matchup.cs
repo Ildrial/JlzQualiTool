@@ -12,10 +12,6 @@ namespace JlzQualiTool
         {
             this.Home = new Team(info.HomeTeamName);
             this.Away = new Team(info.AwayTeamName);
-            this.Id = info.Id;
-            // TODO use start time from configuration
-            this.Time = info.Time;
-            this.Court = info.Court;
             this.Info = info;
             // TODO log creation
 
@@ -27,12 +23,12 @@ namespace JlzQualiTool
         public Team Away { get; set; }
         public int? AwayGoal { get; set; }
         public int AwayId { get; set; }
-        public int Court { get; set; }
+        public int Court => Info.Court;
         public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
         public Team Home { get; set; }
         public int? HomeGoal { get; set; }
         public int HomeId { get; set; }
-        public int Id { get; set; }
+        public int Id => Info.Id;
         public MatchupInfo Info { get; } = new MatchupInfo();
         public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
 
@@ -44,7 +40,7 @@ namespace JlzQualiTool
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         public int Round => Id / 100;
-        public TimeSpan Time { get; set; }
+        public TimeSpan Time => Info.Time;
 
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
