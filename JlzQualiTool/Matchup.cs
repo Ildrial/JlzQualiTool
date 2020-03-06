@@ -20,6 +20,8 @@ namespace JlzQualiTool
             Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
         }
 
+        public bool IsRematch => Home.HasPlayed(Away);
+
         public Team Away { get; set; }
         public int? AwayGoal { get; set; }
         public int AwayId { get; set; }

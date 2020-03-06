@@ -60,6 +60,11 @@ namespace JlzQualiTool
             }
         }
 
+        public bool HasPlayed(Team team)
+        {
+            return Opponents.Contains(team);
+        }
+
         public void Publish()
         {
             this.OnPropertyChanged("Points");

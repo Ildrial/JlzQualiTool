@@ -122,21 +122,23 @@ namespace JlzQualiTool
                 var matchup = new Matchup(matchupInfo);
                 Round.Matchups.Add(matchup);
             }
+
+            // TODO check if events need to be detached.
             Round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchups();
         }
 
         private bool IsMatchupValid(Matchup matchup)
         {
-            // Must not play agains each other twice
+            //if (matchup.Home.HasPlayed(matchup))
             return true;
         }
 
-        private bool SelectNextMatchup(List<Matchup> remainingMatchups, out Matchup matchup)
+        private Matchup SelectNextMatchup(List<Matchup> remainingMatchups)
         {
-            matchup = remainingMatchups.First();
+            var matchup = remainingMatchups.First();
             // TODO select first available instead of first always (i.e. backtracking)
 
-            return IsMatchupValid(matchup);
+            return matchup;
         }
 
         private void UpdateMatchup(Matchup matchup)
@@ -183,8 +185,9 @@ namespace JlzQualiTool
                 return true;
             }
 
-            while (SelectNextMatchup(remainingMatchups, out Matchup matchup))
+            do
             {
+                var matchup = SelectNextMatchup(remainingMatchups);
                 this.UpdateMatchup(matchup);
                 Log.Info($"{indent} > Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
                 if (!remainingMatchups.Remove(matchup))
@@ -198,9 +201,15 @@ namespace JlzQualiTool
                 {
                     return true;
                 }
-            }
+            } while (HasMorePossibleMatchups());
 
             return false;
+        }
+
+        private bool HasMorePossibleMatchups()
+        {
+            // TODO add parameters and implement logic
+            return true;
         }
     }
 }
