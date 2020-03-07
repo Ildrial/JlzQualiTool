@@ -30,7 +30,7 @@ namespace JlzQualiTool
         public int Round => Id / 10;
 
         // TODO use start time and match interval from Configuration
-        public TimeSpan Time => Settings.StartTime + (((Round - 1) * (Settings.TotalTeams / 4)) + ((Order -1) / 2)) * Settings.MatchInterval;
+        public TimeSpan Time => Settings.StartTime + (((Round - 1) * (Settings.TotalTeams / 4)) + ((Order - 1) / 2)) * Settings.MatchInterval;
 
         private static string GetTeamName(string name)
         {

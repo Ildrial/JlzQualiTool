@@ -127,47 +127,101 @@ namespace JlzQualiTool
             Round.PreviousRound.OnRankingUpdatedEvent += (o, e) => UpdateMatchups();
         }
 
-        private bool IsMatchupValid(Matchup matchup)
+        private bool HasMorePossibleMatchups()
         {
-            //if (matchup.Home.HasPlayed(matchup))
+            // TODO add parameters and implement logic
             return true;
         }
 
-        private Matchup SelectNextMatchup(List<Matchup> remainingMatchups)
+        private int GetRankByConfigString(string position)
         {
-            var matchup = remainingMatchups.First();
-            // TODO select first available instead of first always (i.e. backtracking)
-
-            return matchup;
+            var positionAsInt = int.Parse(position);
+            return string.IsNullOrEmpty(position)
+                ? 0
+                : Swaps.ContainsKey(positionAsInt)
+                    ? Swaps[positionAsInt]
+                    : positionAsInt;
         }
 
-        private void UpdateMatchup(Matchup matchup)
+        private bool ConfigureMatchup(Matchup matchup, List<Matchup> fixedMatchups, List<Team> failedOpponents)
         {
-            var homeRank = string.IsNullOrEmpty(matchup.Info.Home) ? 0 : int.Parse(matchup.Info.Home);
-            var awayRank = string.IsNullOrEmpty(matchup.Info.Away) ? 0 : int.Parse(matchup.Info.Away);
-
-            if (homeRank != 0 && awayRank != 0)
+            var homeRank = GetRankByConfigString(matchup.Info.Home);
+            var awayRank = GetRankByConfigString(matchup.Info.Away);
+            if (homeRank == 0 || awayRank == 0)
             {
-                // TODO parts of table must be fixed before... (idea: fixed flag on ranking entry?)
-                if (Round.PreviousRound.Matchups.All(m => m.IsPlayed))
+                // TODO handle wild cards
+                return false;
+            }
+
+            var home = Round.PreviousRound.Ranking[homeRank - 1].Team;
+
+            // TODO without dummy team.
+            Team? away = null;
+            for (int a = awayRank - 1; a < Round.PreviousRound.Ranking.Count(); a++)
+            {
+                var testTeam = Round.PreviousRound.Ranking[a].Team;
+
+                if (home.HasPlayed(testTeam))
                 {
-                    matchup.Home = Round.PreviousRound.Ranking[homeRank - 1].Team;
-                    matchup.Away = Round.PreviousRound.Ranking[awayRank - 1].Team;
+                    Log.Info($"\t\t\t - Rematch detected: {home} - {testTeam}");
+                    // TODO choose next possible away opponent
+                }
+                else if (HasPlayedThisRound(testTeam, fixedMatchups))
+                {
+                    Log.Info($"\t\t\t - Potential oponent of {home} has already played: {testTeam}");
+                    failedOpponents.Add(testTeam);
+                    // TODO choose next possible away opponent
+                }
+                else if (failedOpponents.Contains(testTeam))
+                {
+                    Log.Info($"\t\t\t - Potential oponent of {home} already failed: {testTeam}");
+                    // TODO choose next possible away opponent
+                }
+                else
+                {
+                    away = testTeam;
+                    SwapPositions(matchup, a + 1);
+                    break;
                 }
             }
-            else
+
+            if (away != null)
             {
-                // TODO implement round 5 logic without fixed places, i.e. rank = 0;
+                matchup.Home = home;
+                matchup.Away = away;
             }
 
+            // TODO time and court!
             matchup.Publish();
+
+            return away != null;
+        }
+
+        private Dictionary<int, int> Swaps { get; } = new Dictionary<int, int>();
+
+        private void SwapPositions(Matchup matchup, int newAway)
+        {
+            Swaps.Add(newAway, int.Parse(matchup.Info.Away));
+        }
+
+        private bool HasPlayedThisRound(Team team, List<Matchup> fixedMatchups)
+        {
+            return fixedMatchups.Any(m => m.WithTeam(team));
         }
 
         private void UpdateMatchups()
         {
+            if (!Round.PreviousRound.Matchups.All(m => m.IsPlayed) || Round.Number == 5)
+            {
+                // TODO parts of table must be fixed before all played... (idea: fixed flag on ranking entry?)
+                // TODO also do calculations if not complete previous round is already played.
+                return;
+            }
+
             // TODO adjust log text once not complete ranking is required
             Log.Info($"Complete ranking of round {Round.PreviousRound.Number} updated. Updating matchups for round {Round.Number}");
 
+            // TODO only pass matchups that are not fixed yet
             if (!UpdateMatchups(Round.Matchups.ToList(), new List<Matchup>()))
             {
                 Log.Fatal($"Update of matchups for round {Round.Number} failed!");
@@ -177,39 +231,50 @@ namespace JlzQualiTool
 
         private bool UpdateMatchups(List<Matchup> remainingMatchups, List<Matchup> fixedMatchups)
         {
-            Contract.Assert(remainingMatchups.Count() + fixedMatchups.Count() == Round.Info.MatchupInfos.Count(), $"{remainingMatchups.Count()} + {fixedMatchups.Count()} != {Round.Info.MatchupInfos.Count()}");
             var indent = new string(' ', fixedMatchups.Count() + 2);
-            Log.Info($"{indent}- UpdateMatchups recursive (depth: {fixedMatchups.Count()})");
+            Log.Info($"{indent}> UpdateMatchups recursive (depth: {fixedMatchups.Count()})");
+
+            Contract.Assert(remainingMatchups.Count() + fixedMatchups.Count() == Round.Info.MatchupInfos.Count(), $"{remainingMatchups.Count()} + {fixedMatchups.Count()} != {Round.Info.MatchupInfos.Count()}");
+
             if (remainingMatchups.Count() == 0)
             {
                 return true;
             }
 
+            var matchup = remainingMatchups.First();
+            if (!remainingMatchups.Remove(matchup))
+            {
+                throw new InvalidOperationException("Matchup must be removed, dammit!");
+            }
+
+            // TODO check if necessary
+            var failedOpponents = new List<Team>();
+
             do
             {
-                var matchup = SelectNextMatchup(remainingMatchups);
-                this.UpdateMatchup(matchup);
-                Log.Info($"{indent} > Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
-                if (!remainingMatchups.Remove(matchup))
+                if (!this.ConfigureMatchup(matchup, fixedMatchups, failedOpponents))
                 {
-                    throw new InvalidOperationException("Matchup must be removed, dammit!");
+                    break;
                 }
 
                 fixedMatchups.Add(matchup);
 
-                if (UpdateMatchups(remainingMatchups, fixedMatchups))
+                Log.Info($"{indent} + Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
+
+                if (UpdateMatchups(remainingMatchups.ToList(), fixedMatchups))
                 {
+                    Log.Info($"{indent}<:) Leaving recursion successfully (depth: {fixedMatchups.Count()})");
                     return true;
                 }
+
+                fixedMatchups.Remove(matchup);
+                failedOpponents.Add(matchup.Away);
             } while (HasMorePossibleMatchups());
 
-            return false;
-        }
+            Log.Info($"{indent}<! Leaving recursion unsuccessfully (depth: {fixedMatchups.Count()})");
 
-        private bool HasMorePossibleMatchups()
-        {
-            // TODO add parameters and implement logic
-            return true;
+            Swaps.Clear();
+            return false;
         }
     }
 }

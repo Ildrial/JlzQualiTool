@@ -29,7 +29,9 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
-            LoadSampleData();
+            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4.data"));
+
+            //LoadSampleData();
             //SimulateResults();
         }
 
@@ -280,7 +282,7 @@ namespace JlzQualiTool
                 team.Publish();
             }
 
-            UpdateRankings();
+            this.UpdateRankings();
         }
 
         private void ClearScores()

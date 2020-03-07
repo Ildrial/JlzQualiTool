@@ -26,7 +26,10 @@ namespace JlzQualiTool
         public int GoalsReceived { get; set; }
         public int GoalsScored { get; set; }
         public bool IsPlaceHolder { get; } = false;
+
+        // TODO derive from Opponents!
         public int Matches { get; set; }
+
         public string Name { get; set; } = "";
         public int Points { get; set; }
         public int PreSeasonPonits { get; set; }
