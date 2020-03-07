@@ -10,8 +10,7 @@ namespace JlzQualiTool
 
         public Matchup(MatchupInfo info)
         {
-            this.Home = new Team(info.HomeTeamName);
-            this.Away = new Team(info.AwayTeamName);
+            Reset();
             this.Info = info;
             // TODO log creation
 
@@ -21,25 +20,39 @@ namespace JlzQualiTool
         }
 
         public Team Away { get; set; }
+
         public int? AwayGoal { get; set; }
+
         public int AwayId { get; set; }
+
         public int Court => Info.Court;
+
         public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
+
         public Team Home { get; set; }
+
         public int? HomeGoal { get; set; }
+
         public int HomeId { get; set; }
+
         public int Id => Info.Id;
+
         public MatchupInfo Info { get; } = new MatchupInfo();
+
         public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
 
         // TODO derive from home/away goals
         public bool IsPlayed { get; private set; }
 
+        public bool IsSet => IsFixed;
+
+        //{ get; set; } = false;
         public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
 
         public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
 
         public int Round => Id / 100;
+
         public TimeSpan Time => Info.Time;
 
         public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
@@ -98,6 +111,12 @@ namespace JlzQualiTool
         public void RaiseOnMatchPlayedEvent()
         {
             OnMatchPlayedEvent?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Reset()
+        {
+            this.Home = new Team(Info.HomeTeamName);
+            this.Away = new Team(Info.AwayTeamName);
         }
 
         public override string ToString()
