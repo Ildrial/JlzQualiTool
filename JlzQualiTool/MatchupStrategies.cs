@@ -188,15 +188,20 @@ namespace JlzQualiTool
                 var failedOpponents = new List<Team>();
 
                 Log.Info($"{indent} + Selecting for Id: {matchup.Id}...");
-                while (this.ConfigureMatchup(matchup, setMatchups, failedOpponents))
+                while (this.ConfigureMatchup(matchup, setMatchups, failedOpponents, out int swapKey))
                 {
-                    Log.Info($"{indent}   > {matchup.Home} vs. {matchup.Away}");
+                    Log.Info($"{indent}   > [{matchup.Id}] {matchup.Home} vs. {matchup.Away}");
 
                     //matchup.IsSet = true;
                     setMatchups = matchups.Where(m => m.IsSet).ToList();
 
+                    var swapsForNextRound = new Dictionary<int, int>(Swaps);
+                    if (swapKey > 0)
+                    {
+                        Swaps[swapKey] = int.Parse(matchup.Info.Away);
+                    }
                     // TODO Next function instead of instantiation here?
-                    if (new MatchupCalculator(Round, new Dictionary<int, int>(Swaps)).CalculateRemainingMatchups(matchups))
+                    if (new MatchupCalculator(Round, swapsForNextRound).CalculateRemainingMatchups(matchups))
                     {
                         Log.Info($"{indent}<:) Leaving recursion successfully (depth: {setMatchups.Count()})");
                         return true;
@@ -205,7 +210,7 @@ namespace JlzQualiTool
                     // Ordner of these three calls is significant!
                     failedOpponents.Add(matchup.Away);
                     matchup.Reset();
-                    ClearUnfixedSwaps();
+                    //ClearUnfixedSwaps();
                 }
 
                 Log.Info($"{indent}<! Leaving recursion unsuccessfully (depth: {setMatchups.Count()})");
@@ -230,8 +235,9 @@ namespace JlzQualiTool
                 }
             }
 
-            private bool ConfigureMatchup(Matchup matchup, List<Matchup> fixedMatchups, List<Team> failedOpponents)
+            private bool ConfigureMatchup(Matchup matchup, List<Matchup> fixedMatchups, List<Team> failedOpponents, out int swapKey)
             {
+                swapKey = 0;
                 var homeRank = GetRankByConfigString(matchup.Info.Home);
                 var awayRank = GetRankByConfigString(matchup.Info.Away);
                 if (homeRank == 0 || awayRank == 0)
@@ -255,18 +261,19 @@ namespace JlzQualiTool
                     }
                     else if (HasPlayedThisRound(testTeam, fixedMatchups))
                     {
-                        Log.Info($"\t\t\t - Potential oponent of {home} has already played: {testTeam}");
+                        Log.Info($"\t\t\t - Potential opponent of {home} has already played: {testTeam}");
                         failedOpponents.Add(testTeam);
                     }
                     else if (failedOpponents.Contains(testTeam))
                     {
-                        Log.Info($"\t\t\t - Potential oponent of {home} already failed: {testTeam}");
+                        Log.Info($"\t\t\t - Potential opponent of {home} already rejected: {testTeam}");
                     }
                     else
                     {
                         away = testTeam;
                         if (originalRank != awayRank)
                         {
+                            swapKey = awayRank;
                             // TODO scrutiny
                             SwapPositions(matchup, awayRank);
                         }
