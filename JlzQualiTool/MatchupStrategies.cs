@@ -136,7 +136,6 @@ namespace JlzQualiTool
             private MatchupCalculator(Round round, Dictionary<int, int> swaps)
             {
                 // TODO instance must only know previous' round ranking and remaining matchups + fixed!
-                // TODO recursion by class
                 this.Round = round;
                 this.Swaps = new Dictionary<int, int>(swaps);
             }
@@ -188,18 +187,14 @@ namespace JlzQualiTool
                 // TODO check if necessary
                 var failedOpponents = new List<Team>();
 
-                do
+                while (this.ConfigureMatchup(matchup, setMatchups, failedOpponents))
                 {
-                    if (!this.ConfigureMatchup(matchup, setMatchups, failedOpponents))
-                    {
-                        break;
-                    }
-
                     //matchup.IsSet = true;
                     setMatchups = matchups.Where(m => m.IsSet).ToList();
 
                     Log.Info($"{indent} + Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
 
+                    // TODO Next function instead of instantiation here?
                     if (new MatchupCalculator(Round, new Dictionary<int, int>(Swaps)).CalculateRemainingMatchups(matchups))
                     {
                         Log.Info($"{indent}<:) Leaving recursion successfully (depth: {setMatchups.Count()})");
@@ -210,7 +205,7 @@ namespace JlzQualiTool
                     failedOpponents.Add(matchup.Away);
                     matchup.Reset();
                     ClearUnfixedSwaps();
-                } while (HasMorePossibleMatchups());
+                }
 
                 Log.Info($"{indent}<! Leaving recursion unsuccessfully (depth: {setMatchups.Count()})");
 
@@ -300,12 +295,6 @@ namespace JlzQualiTool
                     : Swaps.ContainsKey(positionAsInt)
                         ? Swaps[positionAsInt]
                         : positionAsInt;
-            }
-
-            private bool HasMorePossibleMatchups()
-            {
-                // TODO add parameters and implement logic
-                return true;
             }
 
             private bool HasPlayedThisRound(Team team, List<Matchup> fixedMatchups)
