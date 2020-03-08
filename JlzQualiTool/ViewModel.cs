@@ -29,6 +29,7 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
+            //LoadData(Path.Combine(Settings.SavePath, "rotkreuz2018-12-round2.data"));
             LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
             //LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4.data"));
 
@@ -57,6 +58,8 @@ namespace JlzQualiTool
         public ObservableCollection<Team> Teams { get; set; }
 
         public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
+
+        private string SaveFileName { set; get; } = @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data";
 
         public static void GlobalExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs args)
         {
@@ -165,6 +168,8 @@ namespace JlzQualiTool
                 UpdateScores();
             }
 
+            this.SaveFileName = Path.GetFileName(fileName);
+
             Log.Info($" - {matchupCounter} matchups loaded.");
 
             // TODO consistency check!
@@ -182,21 +187,39 @@ namespace JlzQualiTool
                 Directory.CreateDirectory(Settings.SavePath);
             }
 
-            var path = Path.Combine(Settings.SavePath, @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data");
-            StreamWriter file = new StreamWriter(path);
-            foreach (var team in Teams)
+            var dialog = new SaveFileDialog()
             {
-                file.WriteLine($"{team.Name}, {team.PreSeasonPonits}, {team.SelfAssessmentPoints}");
-            }
+                InitialDirectory = Settings.SavePath,
+                FileName = SaveFileName,
+                CheckPathExists = true,
+                DefaultExt = ".data",
+                Filter = "JlzQualiData (*.data)|*.data",
+                FilterIndex = 1,
+                AddExtension = true
+            };
 
-            file.WriteLine(TimeMatchupSeparator);
-
-            foreach (var matchup in Matchups.Where(m => m.IsPlayed))
+            if (dialog.ShowDialog() == true)
             {
-                file.WriteLine($"{matchup.Id}, {matchup.HomeGoal}:{matchup.AwayGoal}");
-            }
+                var path = Path.Combine(dialog.FileName);
 
-            file.Close();
+                var strm = dialog.OpenFile();
+
+                //var path = Path.Combine(Settings.SavePath, @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data");
+                StreamWriter file = new StreamWriter(strm);
+                foreach (var team in Teams)
+                {
+                    file.WriteLine($"{team.Name}, {team.PreSeasonPonits}, {team.SelfAssessmentPoints}");
+                }
+
+                file.WriteLine(TimeMatchupSeparator);
+
+                foreach (var matchup in Matchups.Where(m => m.IsPlayed))
+                {
+                    file.WriteLine($"{matchup.Id}, {matchup.HomeGoal}:{matchup.AwayGoal}");
+                }
+
+                file.Close();
+            }
         }
 
         public void SaveScore(Matchup matchup)
