@@ -187,12 +187,13 @@ namespace JlzQualiTool
                 // TODO check if necessary
                 var failedOpponents = new List<Team>();
 
+                Log.Info($"{indent} + Selecting for Id: {matchup.Id}...");
                 while (this.ConfigureMatchup(matchup, setMatchups, failedOpponents))
                 {
+                    Log.Info($"{indent}   > {matchup.Home} vs. {matchup.Away}");
+
                     //matchup.IsSet = true;
                     setMatchups = matchups.Where(m => m.IsSet).ToList();
-
-                    Log.Info($"{indent} + Selecting for Id: {matchup.Id}, {matchup.Home} vs. {matchup.Away}");
 
                     // TODO Next function instead of instantiation here?
                     if (new MatchupCalculator(Round, new Dictionary<int, int>(Swaps)).CalculateRemainingMatchups(matchups))
@@ -241,35 +242,33 @@ namespace JlzQualiTool
 
                 var home = Round.PreviousRound.Ranking[homeRank - 1].Team;
 
-                // TODO without dummy team.
                 Team? away = null;
-                for (int a = awayRank - 1; a < Round.PreviousRound.Ranking.Count(); a++)
+                var originalRank = int.Parse(matchup.Info.Away);
+                for (int a = originalRank - 1; a < Round.PreviousRound.Ranking.Count(); a++)
                 {
-                    var testTeam = Round.PreviousRound.Ranking[a].Team;
+                    awayRank = GetRankByConfigString((a + 1).ToString());
+                    var testTeam = Round.PreviousRound.Ranking[awayRank - 1].Team;
 
                     if (home.HasPlayed(testTeam))
                     {
                         Log.Info($"\t\t\t - Rematch detected: {home} - {testTeam}");
-                        // TODO choose next possible away opponent
                     }
                     else if (HasPlayedThisRound(testTeam, fixedMatchups))
                     {
                         Log.Info($"\t\t\t - Potential oponent of {home} has already played: {testTeam}");
                         failedOpponents.Add(testTeam);
-                        // TODO choose next possible away opponent
                     }
                     else if (failedOpponents.Contains(testTeam))
                     {
                         Log.Info($"\t\t\t - Potential oponent of {home} already failed: {testTeam}");
-                        // TODO choose next possible away opponent
                     }
                     else
                     {
                         away = testTeam;
-                        if (a != awayRank - 1)
+                        if (originalRank != awayRank)
                         {
                             // TODO scrutiny
-                            SwapPositions(matchup, a + 1);
+                            SwapPositions(matchup, awayRank);
                         }
                         break;
                     }
@@ -289,6 +288,7 @@ namespace JlzQualiTool
 
             private int GetRankByConfigString(string position)
             {
+                // TODO might need to handle cascading resolution
                 var positionAsInt = int.Parse(position);
                 return string.IsNullOrEmpty(position)
                     ? 0
