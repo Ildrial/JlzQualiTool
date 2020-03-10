@@ -22,10 +22,15 @@ namespace JlzQualiTool
         }
 
         public int Difference => GoalsScored - GoalsReceived;
+
         public int GamesPlayed { get; }
+
         public string Goals => $"{this.GoalsScored} : {this.GoalsReceived}\t {this.Difference}";
+
         public int GoalsReceived { get; }
+
         public int GoalsScored { get; }
+
         public int Points { get; }
 
         public string Position
@@ -45,8 +50,15 @@ namespace JlzQualiTool
         }
 
         public Team Team { get; }
+
         private int Chance { get; }
+
         private bool IsInversed { get; }
+
+        public override string ToString()
+        {
+            return $"{Team} [{GamesPlayed}, {Points}, {GoalsScored}:{GoalsReceived},{Difference})";
+        }
 
         // Create the OnPropertyChanged method to raise the event
         protected void OnPropertyChanged(string name)

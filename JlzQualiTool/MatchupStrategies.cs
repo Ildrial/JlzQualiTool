@@ -1,9 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Xml.Serialization;
 
 namespace JlzQualiTool
 {
@@ -140,6 +138,7 @@ namespace JlzQualiTool
                 this.Swaps = new Dictionary<int, int>(swaps);
             }
 
+            private RankingSnapshot PreviousRanking => Round.PreviousRound.Ranking;
             private Round Round { get; }
 
             private Dictionary<int, int> Swaps { get; } = new Dictionary<int, int>();
@@ -198,7 +197,8 @@ namespace JlzQualiTool
                     var swapsForNextRound = new Dictionary<int, int>(Swaps);
                     if (swapKey > 0)
                     {
-                        Swaps[swapKey] = int.Parse(matchup.Info.Away);
+                        Log.Info($"\t\t\t - Swapping {swapKey} ({Round.PreviousRound.Ranking[swapKey - 1]}) and {matchup.Info.Away} ({Round.PreviousRound.Ranking[int.Parse(matchup.Info.Away) - 1]}) ");
+                        swapsForNextRound[swapKey] = int.Parse(matchup.Info.Away);
                     }
                     // TODO Next function instead of instantiation here?
                     if (new MatchupCalculator(Round, swapsForNextRound).CalculateRemainingMatchups(matchups))
@@ -238,21 +238,26 @@ namespace JlzQualiTool
             private bool ConfigureMatchup(Matchup matchup, List<Matchup> fixedMatchups, List<Team> failedOpponents, out int swapKey)
             {
                 swapKey = 0;
-                var homeRank = GetRankByConfigString(matchup.Info.Home);
-                var awayRank = GetRankByConfigString(matchup.Info.Away);
+                var originalAwayRank = int.TryParse(matchup.Info.Away, out int a) ? a : 0;
+                var originalHomeRank = int.TryParse(matchup.Info.Home, out int h) ? h : 0;
+                var homeRank = GetRankByPosition(originalHomeRank);
+                var awayRank = GetRankByPosition(originalAwayRank);
                 if (homeRank == 0 || awayRank == 0)
                 {
                     // TODO handle wild cards
                     return false;
                 }
 
-                var home = Round.PreviousRound.Ranking[homeRank - 1].Team;
+                var home = PreviousRanking[homeRank - 1].Team;
+
+                var checkOrder = Enumerable.Range(originalAwayRank, PreviousRanking.Count() - originalAwayRank + 1).Concat(Enumerable.Range(originalHomeRank + 1, originalAwayRank - originalHomeRank - 1).Reverse()).ToList();
+                Log.Info($"\t\t\t - Matching up {homeRank} with: {string.Join(", ", checkOrder)}");
 
                 Team? away = null;
-                var originalRank = int.Parse(matchup.Info.Away);
-                for (int a = originalRank - 1; a < Round.PreviousRound.Ranking.Count(); a++)
+
+                for (int i = 0; i < checkOrder.Count(); i++)
                 {
-                    awayRank = GetRankByConfigString((a + 1).ToString());
+                    awayRank = GetRankByPosition(checkOrder[i]);
                     var testTeam = Round.PreviousRound.Ranking[awayRank - 1].Team;
 
                     if (home.HasPlayed(testTeam))
@@ -271,15 +276,22 @@ namespace JlzQualiTool
                     else
                     {
                         away = testTeam;
-                        if (originalRank != awayRank)
+                        if (originalAwayRank != awayRank)
                         {
-                            swapKey = awayRank;
+                            // TODO improve handling to ensure no swapping back
+                            if (!Swaps.ContainsKey(int.Parse(matchup.Info.Away)) || Swaps[int.Parse(matchup.Info.Away)] != awayRank)
+                            {
+                                swapKey = awayRank;
+                            }
                             // TODO scrutiny
-                            SwapPositions(matchup, awayRank);
+                            //SwapPositions(matchup, awayRank);
                         }
                         break;
                     }
                 }
+
+                // TODO
+                //trace backwards as well until home rank!
 
                 if (away != null)
                 {
@@ -293,15 +305,15 @@ namespace JlzQualiTool
                 return away != null;
             }
 
-            private int GetRankByConfigString(string position)
+            /// <summary>
+            /// Get rank (for team resolution) by position, considering already present swaps (which were done to avoid rematches).
+            /// </summary>
+            private int GetRankByPosition(int position)
             {
-                // TODO might need to handle cascading resolution
-                var positionAsInt = int.Parse(position);
-                return string.IsNullOrEmpty(position)
-                    ? 0
-                    : Swaps.ContainsKey(positionAsInt)
-                        ? Swaps[positionAsInt]
-                        : positionAsInt;
+                // TODO consider returning team directly
+                return Swaps.ContainsKey(position)
+                        ? Swaps[position]
+                        : position;
             }
 
             private bool HasPlayedThisRound(Team team, List<Matchup> fixedMatchups)
