@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace JlzQualiTool
@@ -240,42 +241,38 @@ namespace JlzQualiTool
                 swapKey = 0;
                 var originalAwayRank = int.TryParse(matchup.Info.Away, out int a) ? a : 0;
                 var originalHomeRank = int.TryParse(matchup.Info.Home, out int h) ? h : 0;
-                var homeRank = GetRankByPosition(originalHomeRank);
-                var awayRank = GetRankByPosition(originalAwayRank);
-                if (homeRank == 0 || awayRank == 0)
-                {
-                    // TODO handle wild cards
-                    return false;
-                }
+                var homeTeam = originalHomeRank > 0
+                    ? this.GetTeamByPosition(originalHomeRank)
+                    : this.GetFirstTeamWithoutMatch(fixedMatchups);
 
-                var home = PreviousRanking[homeRank - 1].Team;
+                List<int> checkOrder = CreateCheckOrder(originalAwayRank, originalHomeRank);
 
-                var checkOrder = Enumerable.Range(originalAwayRank, PreviousRanking.Count() - originalAwayRank + 1).Concat(Enumerable.Range(originalHomeRank + 1, originalAwayRank - originalHomeRank - 1).Reverse()).ToList();
-                Log.Info($"\t\t\t - Matching up {homeRank} with: {string.Join(", ", checkOrder)}");
+                Log.Info($"\t\t\t - Trying to match up {originalHomeRank} ({homeTeam}) with... [{string.Join(", ", checkOrder)}]");
 
-                Team? away = null;
+                Team? awayTeam = null;
 
                 for (int i = 0; i < checkOrder.Count(); i++)
                 {
-                    awayRank = GetRankByPosition(checkOrder[i]);
-                    var testTeam = Round.PreviousRound.Ranking[awayRank - 1].Team;
+                    var awayRank = checkOrder[i];
+                    var testTeam = GetTeamByPosition(awayRank);
+                    Log.Info($"\t\t\t\t ... {awayRank} ({testTeam})");
 
-                    if (home.HasPlayed(testTeam))
+                    if (homeTeam.HasPlayed(testTeam))
                     {
-                        Log.Info($"\t\t\t - Rematch detected: {home} - {testTeam}");
+                        Log.Info($"\t\t\t - Rematch detected: {homeTeam} - {testTeam}");
                     }
                     else if (HasPlayedThisRound(testTeam, fixedMatchups))
                     {
-                        Log.Info($"\t\t\t - Potential opponent of {home} has already played: {testTeam}");
+                        Log.Info($"\t\t\t - Potential opponent of {homeTeam} has already played: {testTeam}");
                         failedOpponents.Add(testTeam);
                     }
                     else if (failedOpponents.Contains(testTeam))
                     {
-                        Log.Info($"\t\t\t - Potential opponent of {home} already rejected: {testTeam}");
+                        Log.Info($"\t\t\t - Potential opponent of {homeTeam} already rejected: {testTeam}");
                     }
                     else
                     {
-                        away = testTeam;
+                        awayTeam = testTeam;
                         if (originalAwayRank != awayRank)
                         {
                             // TODO improve handling to ensure no swapping back
@@ -290,30 +287,57 @@ namespace JlzQualiTool
                     }
                 }
 
-                // TODO
-                //trace backwards as well until home rank!
-
-                if (away != null)
+                if (awayTeam != null)
                 {
-                    matchup.Home = home;
-                    matchup.Away = away;
+                    matchup.Home = homeTeam;
+                    matchup.Away = awayTeam;
                 }
 
                 // TODO time and court!
                 matchup.Publish();
 
-                return away != null;
+                return awayTeam != null;
+            }
+
+            private List<int> CreateCheckOrder(int originalAwayRank, int originalHomeRank)
+            {
+                if (originalAwayRank == 0)
+                {
+                    // Handling wild cards
+                    // TODO optimize and start on home rank (requires additional parameter or different setting)
+                    return Enumerable.Range(3, PreviousRanking.Count() - 2).ToList();
+                }
+                else
+                {
+                    Contract.Assert(originalHomeRank > 0, "Home team should have number greater than 0 assigned here.");
+                    return Enumerable.Range(originalAwayRank, PreviousRanking.Count() - originalAwayRank + 1).Concat(Enumerable.Range(originalHomeRank + 1, originalAwayRank - originalHomeRank - 1).Reverse()).ToList();
+                }
+            }
+
+            private Team GetFirstTeamWithoutMatch(List<Matchup> fixedMatchups)
+            {
+                foreach (var team in PreviousRanking.Select(r => r.Team))
+                {
+                    if (!fixedMatchups.Any(m => m.WithTeam(team)))
+                    {
+                        return team;
+                    }
+                }
+
+                Contract.Assert(false, "At least one team without match must be found!");
+                return new Team("I don't care, as I am actually dead code.");
             }
 
             /// <summary>
-            /// Get rank (for team resolution) by position, considering already present swaps (which were done to avoid rematches).
+            /// Get team by position, considering already occurred swaps (which were done to avoid rematches).
             /// </summary>
-            private int GetRankByPosition(int position)
+            private Team GetTeamByPosition(int position)
             {
-                // TODO consider returning team directly
+                Contract.Assert(position > 0, "Position must be greater than 0!");
                 return Swaps.ContainsKey(position)
-                        ? Swaps[position]
-                        : position;
+
+                        ? GetTeamByPosition(Swaps[position])
+                        : PreviousRanking[position - 1].Team;
             }
 
             private bool HasPlayedThisRound(Team team, List<Matchup> fixedMatchups)

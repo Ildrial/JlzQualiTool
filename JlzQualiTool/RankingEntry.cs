@@ -57,7 +57,7 @@ namespace JlzQualiTool
 
         public override string ToString()
         {
-            return $"{Team} [{GamesPlayed}, {Points}, {GoalsScored}:{GoalsReceived},{Difference})";
+            return $"{Team} [{GamesPlayed}, {Points}, {GoalsScored}:{GoalsReceived},{Difference}]";
         }
 
         // Create the OnPropertyChanged method to raise the event
