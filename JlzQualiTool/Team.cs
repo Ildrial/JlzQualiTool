@@ -82,7 +82,7 @@ namespace JlzQualiTool
 
         public override string ToString()
         {
-            return $"{Id}: {this.Name}";
+            return $"[{Id}] {this.Name}";
         }
 
         internal void ClearRankingInfo()

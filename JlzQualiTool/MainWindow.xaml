@@ -229,5 +229,32 @@
                                     Binding="{Binding Position}" />
             </DataGrid.Columns>
         </DataGrid>
+
+        <DataGrid HorizontalAlignment="Left"
+                  Height="Auto"
+                  VerticalAlignment="Top"
+                  Width="Auto"
+                  SelectionMode="Single"
+                  SelectionUnit="Cell"
+                  ItemsSource="{Binding Rounds[4].Ranking, Mode=OneWay }"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  Grid.Row="3"
+                  CanUserSortColumns="False"
+                  Grid.Column="4"
+                  Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="TeamName"
+                                    Binding="{Binding Team.Name}" />
+                <DataGridTextColumn Header="Matches"
+                                    Binding="{Binding GamesPlayed}" />
+                <DataGridTextColumn Header="Points"
+                                    Binding="{Binding Points}" />
+                <DataGridTextColumn Header="Goals"
+                                    Binding="{Binding Goals}" />
+                <DataGridTextColumn Header="Position"
+                                    Binding="{Binding Position}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

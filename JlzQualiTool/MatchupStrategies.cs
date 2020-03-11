@@ -146,7 +146,7 @@ namespace JlzQualiTool
 
             internal static void Run(Round round)
             {
-                if (!round.PreviousRound.Matchups.All(m => m.IsPlayed) || round.Number == 5)
+                if (!round.PreviousRound.Matchups.All(m => m.IsPlayed))
                 {
                     // TODO parts of table must be fixed before all played... (idea: fixed flag on ranking entry?)
                     // TODO also do calculations if not complete previous round is already played.
@@ -260,10 +260,10 @@ namespace JlzQualiTool
                     if (IsMatchupValid(homeTeam, testTeam, fixedMatchups, failedOpponents))
                     {
                         awayTeam = testTeam;
-                        if (originalAwayRank != awayRank)
+                        if (originalAwayRank != 0 && originalAwayRank != awayRank)
                         {
                             // TODO improve handling to ensure no swapping back
-                            if (!Swaps.ContainsKey(int.Parse(matchup.Info.Away)) || Swaps[int.Parse(matchup.Info.Away)] != awayRank)
+                            if (!Swaps.ContainsKey(originalAwayRank) || Swaps[originalAwayRank] != awayRank)
                             {
                                 swapKey = awayRank;
                             }
@@ -346,6 +346,10 @@ namespace JlzQualiTool
                 else if (failedOpponents.Contains(testTeam))
                 {
                     Log.Info($"\t\t\t - Potential opponent of {homeTeam} already rejected: {testTeam}");
+                }
+                else if (homeTeam == testTeam)
+                {
+                    Log.Info($"\t\t\t - {homeTeam} cannot play against itself.");
                 }
                 else
                 {
