@@ -26,20 +26,14 @@ namespace JlzQualiTool
         public int AwayId { get; set; }
 
         public int Court => Info.Court;
-
         public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
-
         public Team Home { get; set; }
-
         public int? HomeGoal { get; set; }
-
         public int HomeId { get; set; }
-
         public int Id => Info.Id;
-
         public MatchupInfo Info { get; } = new MatchupInfo();
-
         public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
+        public bool IsOverrule { get; set; } = false;
 
         // TODO derive from home/away goals
         public bool IsPlayed { get; private set; }

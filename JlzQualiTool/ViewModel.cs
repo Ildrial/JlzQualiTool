@@ -32,7 +32,7 @@ namespace JlzQualiTool
 
             //LoadData(Path.Combine(Settings.SavePath, "rotkreuz2018-12-round2.data"));
             //LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
-            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4-withoverrule.data"));
+            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round5-withoverrules.data"));
 
             //LoadSampleData();
             //SimulateResults();
@@ -164,6 +164,7 @@ namespace JlzQualiTool
                     Log.Info($"Overruling match {matchup.Id}: {home} - {away}\t(previous: {matchup.Home} - {matchup.Away})");
                     matchup.Home = Teams.Single(t => t.Id == home);
                     matchup.Away = Teams.Single(t => t.Id == away);
+                    matchup.IsOverrule = true;
                 }
                 matchup.HomeGoal = int.Parse(score[0]);
                 matchup.AwayGoal = int.Parse(score[1]);
@@ -231,7 +232,12 @@ namespace JlzQualiTool
 
                 foreach (var matchup in Matchups.Where(m => m.IsPlayed))
                 {
-                    file.WriteLine($"{matchup.Id}, {matchup.HomeGoal}:{matchup.AwayGoal}");
+                    var overruleAddition = "";
+                    if (matchup.IsOverrule)
+                    {
+                        overruleAddition = $", {matchup.Home.Id}, {matchup.Away.Id}";
+                    }
+                    file.WriteLine($"{matchup.Id}, {matchup.HomeGoal}:{matchup.AwayGoal}{overruleAddition}");
                 }
 
                 file.Close();
