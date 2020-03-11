@@ -25,6 +25,7 @@ namespace JlzQualiTool
         public int Difference => this.GoalsScored - this.GoalsReceived;
         public int GoalsReceived { get; set; }
         public int GoalsScored { get; set; }
+        public char Id { get; set; }
         public bool IsPlaceHolder { get; } = false;
 
         // TODO derive from Opponents!
@@ -38,13 +39,14 @@ namespace JlzQualiTool
         public int SelfAssessmentPoints { get; set; }
         public int TotalPoints => this.PreSeasonPonits + this.SelfAssessmentPoints;
 
-        public static Team FromLine(string line)
+        public static Team FromLine(string line, char id)
         {
             var cells = line.Split(',');
             Contract.Assert(cells.Length >= 3);
             return new Team
             {
                 Name = cells[0].Trim(),
+                Id = id,
                 PreSeasonPonits = ParseInt(cells[1]),
                 SelfAssessmentPoints = ParseInt(cells[2])
             };
@@ -80,7 +82,7 @@ namespace JlzQualiTool
 
         public override string ToString()
         {
-            return this.Name;
+            return $"{Id}: {this.Name}";
         }
 
         internal void ClearRankingInfo()

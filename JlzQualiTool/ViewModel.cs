@@ -32,7 +32,7 @@ namespace JlzQualiTool
 
             //LoadData(Path.Combine(Settings.SavePath, "rotkreuz2018-12-round2.data"));
             //LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
-            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4.data"));
+            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4-withoverrule.data"));
 
             //LoadSampleData();
             //SimulateResults();
@@ -104,6 +104,7 @@ namespace JlzQualiTool
 
             var lines = File.ReadLines(fileName, Encoding.Default);
             var e = lines.GetEnumerator();
+            var id = 'A';
             while (e.MoveNext())
             {
                 if (e.Current.Equals(TimeMatchupSeparator))
@@ -111,8 +112,13 @@ namespace JlzQualiTool
                     // TODO check alternative: FromLine returns null as indicator.
                     break;
                 }
-                Team team = Team.FromLine(e.Current);
+                Team team = Team.FromLine(e.Current, id);
                 this.Teams.Add(team);
+                id++;
+                if (id == 'J')
+                {
+                    id++;
+                }
             }
 
             // TODO right place to do that?
@@ -150,6 +156,15 @@ namespace JlzQualiTool
                     break;
                 }
                 var matchup = Matchups.Single(m => m.Id == matchId);
+
+                if (cells.Count() == 4)
+                {
+                    var home = cells[2].Trim()[0];
+                    var away = cells[3].Trim()[0];
+                    Log.Info($"Overruling match {matchup.Id}: {home} - {away}\t(previous: {matchup.Home} - {matchup.Away})");
+                    matchup.Home = Teams.Single(t => t.Id == home);
+                    matchup.Away = Teams.Single(t => t.Id == away);
+                }
                 matchup.HomeGoal = int.Parse(score[0]);
                 matchup.AwayGoal = int.Parse(score[1]);
 

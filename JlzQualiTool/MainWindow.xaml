@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="MainWindow"
         Height="1400"
-        Width="1600">
+        WindowState="Maximized"
+        Width="2000">
     <Window.DataContext>
         <local:ViewModel />
     </Window.DataContext>
