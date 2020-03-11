@@ -257,20 +257,7 @@ namespace JlzQualiTool
                     var testTeam = GetTeamByPosition(awayRank);
                     Log.Info($"\t\t\t\t ... {awayRank} ({testTeam})");
 
-                    if (homeTeam.HasPlayed(testTeam))
-                    {
-                        Log.Info($"\t\t\t - Rematch detected: {homeTeam} - {testTeam}");
-                    }
-                    else if (HasPlayedThisRound(testTeam, fixedMatchups))
-                    {
-                        Log.Info($"\t\t\t - Potential opponent of {homeTeam} has already played: {testTeam}");
-                        failedOpponents.Add(testTeam);
-                    }
-                    else if (failedOpponents.Contains(testTeam))
-                    {
-                        Log.Info($"\t\t\t - Potential opponent of {homeTeam} already rejected: {testTeam}");
-                    }
-                    else
+                    if (IsMatchupValid(homeTeam, testTeam, fixedMatchups, failedOpponents))
                     {
                         awayTeam = testTeam;
                         if (originalAwayRank != awayRank)
@@ -343,6 +330,29 @@ namespace JlzQualiTool
             private bool HasPlayedThisRound(Team team, List<Matchup> fixedMatchups)
             {
                 return fixedMatchups.Any(m => m.WithTeam(team));
+            }
+
+            private bool IsMatchupValid(Team homeTeam, Team testTeam, List<Matchup> fixedMatchups, List<Team> failedOpponents)
+            {
+                if (homeTeam.HasPlayed(testTeam))
+                {
+                    Log.Info($"\t\t\t - Rematch detected: {homeTeam} - {testTeam}");
+                }
+                else if (HasPlayedThisRound(testTeam, fixedMatchups))
+                {
+                    Log.Info($"\t\t\t - Potential opponent of {homeTeam} has already played: {testTeam}");
+                    failedOpponents.Add(testTeam);
+                }
+                else if (failedOpponents.Contains(testTeam))
+                {
+                    Log.Info($"\t\t\t - Potential opponent of {homeTeam} already rejected: {testTeam}");
+                }
+                else
+                {
+                    return true;
+                }
+
+                return false;
             }
 
             private void SwapPositions(Matchup matchup, int newAway)
