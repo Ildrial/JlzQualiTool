@@ -6,3 +6,7 @@
 /JlzQualiTool/bin/Debug/**
 /JlzQualiTool/obj/**
 /JlzQualiTool/qualidata/
+/JlzQualiTool/bin/Release/netcoreapp3.1
+/JlzQualiTool/bin/Debug/netcoreapp3.1
+/JlzQualiToolTests/bin
+/JlzQualiToolTests/obj

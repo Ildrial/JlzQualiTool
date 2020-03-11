@@ -9,6 +9,7 @@ namespace JlzQualiTool
     using log4net;
     using Microsoft.Win32;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
@@ -30,8 +31,8 @@ namespace JlzQualiTool
             this.Rounds = new ObservableCollection<Round>();
 
             //LoadData(Path.Combine(Settings.SavePath, "rotkreuz2018-12-round2.data"));
-            LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
-            //LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4.data"));
+            //LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
+            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round4.data"));
 
             //LoadSampleData();
             //SimulateResults();

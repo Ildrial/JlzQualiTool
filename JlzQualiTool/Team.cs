@@ -31,12 +31,12 @@ namespace JlzQualiTool
         public int Matches { get; set; }
 
         public string Name { get; set; } = "";
+        public List<Team> Opponents { get; } = new List<Team>(5);
         public int Points { get; set; }
         public int PreSeasonPonits { get; set; }
         public int Seed { get; set; }
         public int SelfAssessmentPoints { get; set; }
         public int TotalPoints => this.PreSeasonPonits + this.SelfAssessmentPoints;
-        private List<Team> Opponents { get; } = new List<Team>(5);
 
         public static Team FromLine(string line)
         {
@@ -52,15 +52,16 @@ namespace JlzQualiTool
 
         public void AddOpponent(Team team)
         {
+            //Contract.Requires<InvalidOperationException>(!Opponents.Contains(team), $"{this} already played against {team}!");
             if (Opponents.Contains(team))
             {
                 Log.Fatal($"!!! Duplicate Matchup recorded: {this} - {team} !!!");
                 throw new InvalidOperationException($"{this} already played against {team}!");
             }
-            else
-            {
-                Opponents.Add(team);
-            }
+
+            Contract.EndContractBlock();
+
+            Opponents.Add(team);
         }
 
         public bool HasPlayed(Team team)
