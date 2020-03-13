@@ -30,12 +30,11 @@ namespace JlzQualiTool
             this.Teams = new ObservableCollection<Team>();
             this.Rounds = new ObservableCollection<Round>();
 
-            //LoadData(Path.Combine(Settings.SavePath, "rotkreuz2018-12-round2.data"));
-            //LoadData(Path.Combine(Settings.SavePath, "langenthal2018-12-round2.data"));
-            LoadData(Path.Combine(Settings.SavePath, "Bonstetten201x-14-round5-withoverrules.data"));
-
-            //LoadSampleData();
-            //SimulateResults();
+            Options.Start(Environment.GetCommandLineArgs());
+            if (Options.Current.File != null)
+            {
+                LoadData(Path.Combine(Options.Current.File));
+            }
         }
 
         public Configuration Configuration { get; set; }
