@@ -19,7 +19,7 @@ namespace JlzQualiTool
             Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
         }
 
-        public Team Away { get; set; }
+        public Team Away { get; set; } = new Team("??");
 
         public int? AwayGoal { get; set; }
 
@@ -27,7 +27,7 @@ namespace JlzQualiTool
 
         public int Court => Info.Court;
         public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
-        public Team Home { get; set; }
+        public Team Home { get; set; } = new Team("??");
         public int? HomeGoal { get; set; }
         public int HomeId { get; set; }
         public int Id => Info.Id;

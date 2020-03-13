@@ -27,8 +27,6 @@ namespace JlzQualiTool
         {
             // TODO check about using CollectionViewSource instead for data grid binding
             // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
-            this.Teams = new ObservableCollection<Team>();
-            this.Rounds = new ObservableCollection<Round>();
 
             Options.Start(Environment.GetCommandLineArgs());
             if (Options.Current.File != null)
@@ -44,7 +42,7 @@ namespace JlzQualiTool
         public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
 
         [DataMember]
-        public ObservableCollection<Round> Rounds { get; }
+        public ObservableCollection<Round> Rounds { get; } = new ObservableCollection<Round>();
 
         public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
 
@@ -53,7 +51,7 @@ namespace JlzQualiTool
         public ICommand SimulateResultsCommand => new CommandHandler(this.SimulateResults, true);
 
         [DataMember]
-        public ObservableCollection<Team> Teams { get; set; }
+        public ObservableCollection<Team> Teams { get; set; } = new ObservableCollection<Team>();
 
         public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
 
@@ -281,6 +279,7 @@ namespace JlzQualiTool
         {
             ClearScores();
 
+            // Updating summary
             for (int t = 0; t < this.Teams.Count; t++)
             {
                 var team = this.Teams[t];
@@ -339,7 +338,7 @@ namespace JlzQualiTool
             for (int i = 1; i < Rounds.Count; i++)
             {
                 var next = i + 1;
-                if ((next == Rounds.Count && Rounds[i].HasStarted) || (Rounds[i].HasStarted && !Rounds[next].HasStarted))
+                if (Rounds[i].HasStarted && (next == Rounds.Count() || !Rounds[next].HasStarted))
                 {
                     Rounds[i].UpdateRanking(Rounds.Where(r => r.Number < i + 2).SelectMany(x => x.Matchups.Where(m => m.IsPlayed)));
                 }
