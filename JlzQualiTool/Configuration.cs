@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -11,6 +12,9 @@ namespace JlzQualiTool
     [XmlRoot("Configuration", IsNullable = false)]
     public class Configuration
     {
+        // TODO put ranking order into configuration
+        public static Configuration Current { get; private set; } = new Configuration();
+
         [XmlAttribute]
         public byte Courts { get; set; }
 
@@ -25,5 +29,23 @@ namespace JlzQualiTool
 
         [XmlAttribute]
         public byte TotalTeams { get; set; }
+
+        public static void Load(int totalTeams)
+        {
+            var configFile = Path.Combine(Settings.ConfigLocation, $"config{totalTeams}.xml");
+
+            if (!File.Exists(configFile))
+            {
+                throw new InvalidOperationException(string.Format(Resources.Exception_NoConfigFileFound, totalTeams));
+            }
+
+            XmlSerializer serializer = new XmlSerializer(typeof(Configuration));
+
+            StreamReader reader = new StreamReader(configFile, Encoding.UTF8);
+            var configuration = (Configuration)serializer.Deserialize(reader);
+            reader.Close();
+
+            Current = configuration;
+        }
     }
 }

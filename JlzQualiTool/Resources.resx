@@ -120,6 +120,9 @@
   <data name="Court" xml:space="preserve">
     <value>Platz {0}</value>
   </data>
+  <data name="Exception.NoConfigFileFound" xml:space="preserve">
+    <value>Kein gültiges Konfigurations-File für {0} Teams vorhanden.</value>
+  </data>
   <data name="FinishPhaseOne" xml:space="preserve">
     <value>Phase 1 abschliessen</value>
   </data>

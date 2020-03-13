@@ -70,6 +70,15 @@ namespace JlzQualiTool {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Kein gültiges Konfigurations-File für {0} Teams vorhanden..
+        /// </summary>
+        public static string Exception_NoConfigFileFound {
+            get {
+                return ResourceManager.GetString("Exception.NoConfigFileFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Phase 1 abschliessen.
         /// </summary>
         public static string FinishPhaseOne {

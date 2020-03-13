@@ -37,8 +37,6 @@ namespace JlzQualiTool
             }
         }
 
-        public Configuration Configuration { get; set; }
-
         public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
 
         public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
@@ -70,13 +68,12 @@ namespace JlzQualiTool
 
         public void InitializeMatchups()
         {
-            // TODO ideally avoid passing view model directly.
-            // TODO put ranking order into configuration
-            Rounds.Add(new Round(Configuration.RoundInfos[0], this, m => RankingSnapshot.None));
-            Rounds.Add(new Round(Configuration.RoundInfos[1], this, m => new RankingSnapshot(m, new List<int> { 1, 2, 3 })));
-            Rounds.Add(new Round(Configuration.RoundInfos[2], this, m => new RankingSnapshot(m, new List<int> { 3, 5 })));
-            Rounds.Add(new Round(Configuration.RoundInfos[3], this, m => new RankingSnapshot(m, new List<int>())));
-            Rounds.Add(new Round(Configuration.RoundInfos[4], this, m => new RankingSnapshot(m, new List<int>())));
+            var configuration = Configuration.Current;
+            Rounds.Add(new Round(configuration.RoundInfos[0], this, m => RankingSnapshot.None));
+            Rounds.Add(new Round(configuration.RoundInfos[1], this, m => new RankingSnapshot(m, new List<int> { 1, 2, 3 })));
+            Rounds.Add(new Round(configuration.RoundInfos[2], this, m => new RankingSnapshot(m, new List<int> { 3, 5 })));
+            Rounds.Add(new Round(configuration.RoundInfos[3], this, m => new RankingSnapshot(m, new List<int>())));
+            Rounds.Add(new Round(configuration.RoundInfos[4], this, m => new RankingSnapshot(m, new List<int>())));
         }
 
         public void LoadData()
@@ -132,7 +129,7 @@ namespace JlzQualiTool
                 orderedTeams[i].Seed = i + 1;
             }
 
-            Configuration = LoadConfig(Teams.Count());
+            Configuration.Load(Teams.Count());
 
             this.Rounds.Clear();
             this.InitializeMatchups();
@@ -334,18 +331,6 @@ namespace JlzQualiTool
         {
             Log.Info("Clearing scores...");
             Teams.ToList().ForEach(t => t.ClearRankingInfo());
-        }
-
-        private Configuration LoadConfig(int totalTeams)
-        {
-            var configFile = @$"../../../config/config{totalTeams}.xml";
-
-            XmlSerializer serializer = new XmlSerializer(typeof(Configuration));
-
-            StreamReader reader = new StreamReader(configFile, Encoding.UTF8);
-            var configuration = (Configuration)serializer.Deserialize(reader);
-            reader.Close();
-            return configuration;
         }
 
         private void UpdateRankings()
