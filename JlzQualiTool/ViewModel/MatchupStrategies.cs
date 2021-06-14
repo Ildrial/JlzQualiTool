@@ -6,16 +6,11 @@ using System.Linq;
 
 namespace JlzQualiTool
 {
-    public interface IMatchupStrategy
-    {
-        void CreateMatchups();
-    }
-
     public class InitialOrderStrategy : MatchupStrategyBase
     {
-        public InitialOrderStrategy(Round round, List<Team> teams) : base(round) => Teams = teams;
-
         private List<Team> Teams { get; }
+
+        public InitialOrderStrategy(Round round, List<Team> teams) : base(round) => Teams = teams;
 
         protected override void CreateMatchupsInternal()
         {
@@ -78,12 +73,12 @@ namespace JlzQualiTool
     {
         protected static ILog Log = log4net.LogManager.GetLogger(typeof(MatchupStrategyBase));
 
+        protected Round Round { get; }
+
         public MatchupStrategyBase(Round round)
         {
             this.Round = round;
         }
-
-        protected Round Round { get; }
 
         public void CreateMatchups()
         {
@@ -128,6 +123,12 @@ namespace JlzQualiTool
 
         internal class MatchupCalculator
         {
+            private RankingSnapshot PreviousRanking => Round.PreviousRound.Ranking;
+
+            private Round Round { get; }
+
+            private Dictionary<int, int> Swaps { get; } = new Dictionary<int, int>();
+
             private MatchupCalculator(Round round) : this(round, new Dictionary<int, int>())
             {
             }
@@ -139,17 +140,13 @@ namespace JlzQualiTool
                 this.Swaps = new Dictionary<int, int>(swaps);
             }
 
-            private RankingSnapshot PreviousRanking => Round.PreviousRound.Ranking;
-            private Round Round { get; }
-
-            private Dictionary<int, int> Swaps { get; } = new Dictionary<int, int>();
-
             internal static void Run(Round round)
             {
                 if (!round.PreviousRound.Matchups.All(m => m.IsPlayed))
                 {
-                    // TODO parts of table must be fixed before all played... (idea: fixed flag on ranking entry?)
-                    // TODO also do calculations if not complete previous round is already played.
+                    // TODO parts of table must be fixed before all played... (idea: fixed flag on
+                    // ranking entry?) TODO also do calculations if not complete previous round is
+                    // already played.
                     return;
                 }
 
@@ -290,8 +287,8 @@ namespace JlzQualiTool
             {
                 if (originalAwayRank == 0)
                 {
-                    // Handling wild cards
-                    // TODO optimize and start on home rank (requires additional parameter or different setting)
+                    // Handling wild cards TODO optimize and start on home rank (requires additional
+                    // parameter or different setting)
                     return Enumerable.Range(3, PreviousRanking.Count() - 2).ToList();
                 }
                 else
@@ -365,5 +362,10 @@ namespace JlzQualiTool
                 Swaps.Add(newAway, int.Parse(matchup.Info.Away));
             }
         }
+    }
+
+    public interface IMatchupStrategy
+    {
+        void CreateMatchups();
     }
 }

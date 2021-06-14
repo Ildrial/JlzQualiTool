@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
-using static JlzQualiTool.StrategyFactory;
 
 namespace JlzQualiTool
 {
@@ -18,9 +16,9 @@ namespace JlzQualiTool
         [XmlAttribute]
         public int Number { get; set; }
 
+        public int TotalMatches => MatchupInfos.Count;
+
         [XmlAttribute]
         public MatchupType Type { get; set; }
-
-        public int TotalMatches => MatchupInfos.Count;
     }
 }

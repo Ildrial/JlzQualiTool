@@ -8,6 +8,30 @@ namespace JlzQualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Matchup));
 
+        public Team Away { get; set; } = new Team("??");
+        public int? AwayGoal { get; set; }
+        public int AwayId { get; set; }
+        public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
+        public Team Home { get; set; } = new Team("??");
+        public int? HomeGoal { get; set; }
+        public int HomeId { get; set; }
+        public MatchupInfo Info { get; } = new MatchupInfo();
+        public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
+        public bool IsOverrule { get; set; } = false;
+        public bool IsPlayed { get; private set; }
+        public bool IsSet => IsFixed;
+        public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
+        public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
+        public int Round => Id / 100;
+        public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
+        public int Court => Info.Court;
+        public int Id => Info.Id;
+        public TimeSpan Time => Info.Time;
+
+        public event EventHandler OnMatchPlayedEvent;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public Matchup(MatchupInfo info)
         {
             Reset();
@@ -18,38 +42,6 @@ namespace JlzQualiTool
 
             Log.Info($" > Created matchup with {Id} @ {Time.ToString(@"hh\:mm")}: {Home.Name} - {Away.Name} on court {Court}.");
         }
-
-        public Team Away { get; set; } = new Team("??");
-
-        public int? AwayGoal { get; set; }
-
-        public int AwayId { get; set; }
-
-        public int Court => Info.Court;
-        public string GameInfo => $"ID: {Id} \t {Time.ToString(@"hh\:mm")} \t {string.Format(Resources.Court, Court)}";
-        public Team Home { get; set; } = new Team("??");
-        public int? HomeGoal { get; set; }
-        public int HomeId { get; set; }
-        public int Id => Info.Id;
-        public MatchupInfo Info { get; } = new MatchupInfo();
-        public bool IsFixed => !Home.IsPlaceHolder && !Away.IsPlaceHolder;
-        public bool IsOverrule { get; set; } = false;
-
-        // TODO derive from home/away goals
-        public bool IsPlayed { get; private set; }
-
-        public bool IsSet => IsFixed;
-
-        //{ get; set; } = false;
-        public bool IsTie => IsPlayed && AwayGoal == HomeGoal;
-
-        public Team? Loser => !this.IsPlayed ? null : this.HomeGoal < this.AwayGoal ? this.Home : this.Away;
-
-        public int Round => Id / 100;
-
-        public TimeSpan Time => Info.Time;
-
-        public Team? Winner => !this.IsPlayed ? null : this.HomeGoal >= this.AwayGoal ? this.Home : this.Away;
 
         public Team GetWinnerOrLoser(char key)
         {
@@ -144,9 +136,5 @@ namespace JlzQualiTool
             this.Home.AddOpponent(this.Away);
             this.Away.AddOpponent(this.Home);
         }
-
-        public event EventHandler OnMatchPlayedEvent;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

@@ -12,16 +12,6 @@ namespace JlzQualiTool
     {
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Team));
 
-        public Team(string name, bool isPlaceHolder = true)
-        {
-            Name = name;
-            IsPlaceHolder = isPlaceHolder;
-        }
-
-        public Team()
-        {
-        }
-
         public int Difference => this.GoalsScored - this.GoalsReceived;
         public int GoalsReceived { get; set; }
         public int GoalsScored { get; set; }
@@ -38,6 +28,18 @@ namespace JlzQualiTool
         public int Seed { get; set; }
         public int SelfAssessmentPoints { get; set; }
         public int TotalPoints => this.PreSeasonPonits + this.SelfAssessmentPoints;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public Team(string name, bool isPlaceHolder = true)
+        {
+            Name = name;
+            IsPlaceHolder = isPlaceHolder;
+        }
+
+        public Team()
+        {
+        }
 
         public static Team FromLine(string line, char id)
         {
@@ -103,7 +105,5 @@ namespace JlzQualiTool
         {
             return string.IsNullOrEmpty(number) ? 0 : int.Parse(number);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

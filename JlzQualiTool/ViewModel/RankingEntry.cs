@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 
 namespace JlzQualiTool
 {
@@ -9,28 +7,11 @@ namespace JlzQualiTool
     {
         private static Random Randomizer = new Random(DateTime.Now.Millisecond);
 
-        public RankingEntry(Team team, int gamesPlayed, int points, int goalsScored, int goalsReceived, bool isInversed)
-        {
-            Team = team;
-            GamesPlayed = gamesPlayed;
-            Points = points;
-            GoalsScored = goalsScored;
-            GoalsReceived = goalsReceived;
-            IsInversed = isInversed;
-            // TODO improve random number: currently it is changed every update and may change predictions! not persistent
-            Chance = Randomizer.Next(1000000);
-        }
-
         public int Difference => GoalsScored - GoalsReceived;
-
         public int GamesPlayed { get; }
-
         public string Goals => $"{this.GoalsScored} : {this.GoalsReceived}\t {this.Difference}";
-
         public int GoalsReceived { get; }
-
         public int GoalsScored { get; }
-
         public int Points { get; }
 
         public string Position
@@ -52,8 +33,22 @@ namespace JlzQualiTool
         public Team Team { get; }
 
         private int Chance { get; }
-
         private bool IsInversed { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public RankingEntry(Team team, int gamesPlayed, int points, int goalsScored, int goalsReceived, bool isInversed)
+        {
+            Team = team;
+            GamesPlayed = gamesPlayed;
+            Points = points;
+            GoalsScored = goalsScored;
+            GoalsReceived = goalsReceived;
+            IsInversed = isInversed;
+            // TODO improve random number: currently it is changed every update and may change
+            // predictions! not persistent
+            Chance = Randomizer.Next(1000000);
+        }
 
         public override string ToString()
         {
@@ -65,7 +60,5 @@ namespace JlzQualiTool
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

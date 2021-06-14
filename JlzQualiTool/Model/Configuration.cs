@@ -42,7 +42,7 @@ namespace JlzQualiTool
             XmlSerializer serializer = new XmlSerializer(typeof(Configuration));
 
             StreamReader reader = new StreamReader(configFile, Encoding.UTF8);
-            var configuration = (Configuration)serializer.Deserialize(reader);
+            var configuration = (Configuration) serializer.Deserialize(reader);
             reader.Close();
 
             Current = configuration;

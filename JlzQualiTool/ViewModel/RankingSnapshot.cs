@@ -1,16 +1,14 @@
 ﻿using log4net;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace JlzQualiTool
 {
     public class RankingSnapshot : ObservableCollection<RankingEntry>
     {
-        private static ILog Log = log4net.LogManager.GetLogger(typeof(RankingSnapshot));
         public static RankingSnapshot None = new RankingSnapshot();
+        private static ILog Log = log4net.LogManager.GetLogger(typeof(RankingSnapshot));
 
         public RankingSnapshot(IEnumerable<RankingEntry> rankingEntries)
             : base(rankingEntries) { }

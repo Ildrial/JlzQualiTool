@@ -9,13 +9,10 @@ namespace JlzQualiTool
     using log4net;
     using Microsoft.Win32;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Json;
     using System.Windows;
     using System.Windows.Threading;
-    using System.Xml.Serialization;
 
     [DataContract]
     public class ViewModel //: INotifyPropertyChanged
@@ -23,10 +20,27 @@ namespace JlzQualiTool
         private static readonly string TimeMatchupSeparator = "---";
         private static ILog Log = log4net.LogManager.GetLogger(typeof(ViewModel));
 
+        public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
+        public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
+
+        [DataMember]
+        public ObservableCollection<Round> Rounds { get; } = new ObservableCollection<Round>();
+
+        public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
+        public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
+        public ICommand SimulateResultsCommand => new CommandHandler(this.SimulateResults, true);
+
+        [DataMember]
+        public ObservableCollection<Team> Teams { get; set; } = new ObservableCollection<Team>();
+
+        public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
+        public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
+
+        private string SaveFileName { set; get; } = @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data";
+
         public ViewModel()
         {
-            // TODO check about using CollectionViewSource instead for data grid binding
-            // cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
+            // TODO check about using CollectionViewSource instead for data grid binding cf https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp
 
             Options.Start(Environment.GetCommandLineArgs());
             if (Options.Current.File != null)
@@ -34,28 +48,6 @@ namespace JlzQualiTool
                 LoadData(Path.Combine(Options.Current.File));
             }
         }
-
-        public ICommand LoadCommand => new CommandHandler(this.LoadData, true);
-
-        public IEnumerable<Matchup> Matchups => Rounds.SelectMany(x => x.Matchups);
-
-        public IEnumerable<Matchup> PlayedMatchups => Matchups.Where(m => m.IsPlayed);
-
-        [DataMember]
-        public ObservableCollection<Round> Rounds { get; } = new ObservableCollection<Round>();
-
-        public ICommand SaveCommand => new CommandHandler(this.SaveData, true);
-
-        public ICommand SaveScoreCommand => new ParameterCommandHandler(this.SaveScore, true);
-
-        public ICommand SimulateResultsCommand => new CommandHandler(this.SimulateResults, true);
-
-        [DataMember]
-        public ObservableCollection<Team> Teams { get; set; } = new ObservableCollection<Team>();
-
-        public ICommand UpdateScoresCommand => new CommandHandler(this.UpdateScores, true);
-
-        private string SaveFileName { set; get; } = @$"jlz-standing-{ DateTime.Now.ToString("yyyyMMdd-HHmmss")}.data";
 
         public static void GlobalExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs args)
         {
@@ -350,6 +342,8 @@ namespace JlzQualiTool
             private readonly Action action;
             private readonly bool canExecute;
 
+            public event EventHandler? CanExecuteChanged;
+
             public CommandHandler(Action action, bool canExecute)
             {
                 this.action = action;
@@ -365,14 +359,14 @@ namespace JlzQualiTool
             {
                 this.action();
             }
-
-            public event EventHandler? CanExecuteChanged;
         }
 
         public class ParameterCommandHandler : ICommand
         {
             private readonly Action<Matchup> action;
             private readonly bool canExecute;
+
+            public event EventHandler? CanExecuteChanged;
 
             public ParameterCommandHandler(Action<Matchup> action, bool canExecute)
             {
@@ -387,10 +381,8 @@ namespace JlzQualiTool
 
             public void Execute(object parameter)
             {
-                this.action((Matchup)parameter);
+                this.action((Matchup) parameter);
             }
-
-            public event EventHandler? CanExecuteChanged;
         }
     }
 }

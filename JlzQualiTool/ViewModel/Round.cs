@@ -16,25 +16,6 @@ namespace JlzQualiTool
         private static ILog Log = log4net.LogManager.GetLogger(typeof(Round));
         private RankingSnapshot ranking = RankingSnapshot.None;
 
-        public Round(RoundInfo roundInfo, ViewModel viewModel, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
-        {
-            this.Number = roundInfo.Number;
-            this.PreviousRound = Number - 2 < 0 ? Zero : viewModel.Rounds[Number - 2];
-            this.RankingOrder = rankingOrder;
-            this.Info = roundInfo;
-
-            this.Strategy = StrategyFactory.GetStrategy(this, viewModel);
-            Strategy.CreateMatchups();
-        }
-
-        private Round()
-        {
-            Number = 0;
-            Strategy = NoStrategy.Get;
-            PreviousRound = Zero;
-            RankingOrder = x => { return RankingSnapshot.None; };
-        }
-
         public bool HasStarted => !Matchups.All(m => !m.IsPlayed);
         public RoundInfo Info { get; } = new RoundInfo();
         public bool IsComplete => Matchups.All(m => m.IsPlayed);
@@ -61,6 +42,35 @@ namespace JlzQualiTool
 
         private IMatchupStrategy Strategy { get; }
 
+        public event EventHandler OnRankingUpdatedEvent = (o, e) =>
+                        {
+                            if (o != null)
+                            {
+                                ((Round) o).OnPropertyChanged("Ranking");
+                            }
+                        };
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public Round(RoundInfo roundInfo, ViewModel viewModel, Func<IEnumerable<Matchup>, RankingSnapshot> rankingOrder)
+        {
+            this.Number = roundInfo.Number;
+            this.PreviousRound = Number - 2 < 0 ? Zero : viewModel.Rounds[Number - 2];
+            this.RankingOrder = rankingOrder;
+            this.Info = roundInfo;
+
+            this.Strategy = StrategyFactory.GetStrategy(this, viewModel);
+            Strategy.CreateMatchups();
+        }
+
+        private Round()
+        {
+            Number = 0;
+            Strategy = NoStrategy.Get;
+            PreviousRound = Zero;
+            RankingOrder = x => { return RankingSnapshot.None; };
+        }
+
         public void RaiseOnRankingUpdatedEvent()
         {
             OnRankingUpdatedEvent?.Invoke(this, EventArgs.Empty);
@@ -77,15 +87,5 @@ namespace JlzQualiTool
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        public event EventHandler OnRankingUpdatedEvent = (o, e) =>
-                        {
-                            if (o != null)
-                            {
-                                ((Round)o).OnPropertyChanged("Ranking");
-                            }
-                        };
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }
