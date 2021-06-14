@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
@@ -15,9 +15,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
     <Compile Remove="View\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="View\**" />
+    <None Remove="NewFolder\**" />
     <None Remove="View\**" />
+    <Page Remove="NewFolder\**" />
     <Page Remove="View\**" />
   </ItemGroup>
 
@@ -49,10 +53,6 @@
 
   <ItemGroup>
     <Page Include="App.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>
