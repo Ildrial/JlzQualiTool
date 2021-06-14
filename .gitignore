@@ -1,8 +1,4 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs/JlzQualiTool
+﻿/.vs/**
 /JlzQualiTool/bin/Debug/**
 /JlzQualiTool/obj/**
 /JlzQualiTool/qualidata/
@@ -11,3 +7,4 @@
 /JlzQualiToolTests/bin
 /JlzQualiToolTests/obj
 /JlzQualiTool/Properties
+*.csproj.user
